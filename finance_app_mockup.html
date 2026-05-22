@@ -1,0 +1,590 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FinanceApp — Mockup</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#e8e8e4;min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:32px 16px;}
+
+h1.app-title{font-size:13px;font-weight:600;color:#5F5E5A;letter-spacing:0.08em;text-transform:uppercase;margin-bottom:6px;}
+p.app-sub{font-size:12px;color:#888780;margin-bottom:24px;}
+
+.screens-row{display:flex;flex-wrap:wrap;gap:24px;justify-content:center;align-items:flex-start;}
+.screen-wrap{display:flex;flex-direction:column;align-items:center;gap:8px;}
+.screen-label{font-size:11px;font-weight:500;color:#5F5E5A;text-transform:uppercase;letter-spacing:0.06em;}
+
+.phone{width:320px;background:#F1EFE8;border-radius:40px;overflow:hidden;border:8px solid #2C2C2A;box-shadow:0 8px 40px rgba(0,0,0,0.18);}
+.phone-inner{border-radius:32px;overflow:hidden;}
+
+/* NOTCH */
+.notch{background:#2C2C2A;height:28px;display:flex;align-items:center;justify-content:center;}
+.notch-pill{background:#111;width:80px;height:20px;border-radius:10px;}
+
+/* STATUS BAR */
+.status{background:#0F6E56;display:flex;justify-content:space-between;padding:4px 16px;font-size:10px;color:rgba(255,255,255,0.7);}
+
+:root{
+  --teal-dark:#0F6E56;--teal-mid:#1D9E75;--teal-light:#E1F5EE;--teal-text:#085041;
+  --amber:#BA7517;--amber-light:#FAEEDA;--amber-text:#633806;
+  --coral:#993C1D;--coral-light:#FAECE7;--coral-mid:#D85A30;
+  --neutral:#F1EFE8;--neutral-mid:#D3D1C7;--neutral-dark:#B4B2A9;
+  --white:#ffffff;--text:#2C2C2A;--text-sec:#5F5E5A;--text-hint:#888780;
+}
+
+/* ===== LOGIN ===== */
+.login-bg{background:var(--teal-dark);padding:48px 24px 32px;}
+.login-logo{width:52px;height:52px;background:rgba(255,255,255,0.15);border-radius:16px;display:flex;align-items:center;justify-content:center;margin:0 auto 16px;}
+.login-logo-inner{width:28px;height:28px;background:#fff;border-radius:8px;}
+.login-title{font-size:22px;font-weight:700;color:#fff;text-align:center;margin-bottom:6px;}
+.login-sub{font-size:13px;color:rgba(255,255,255,0.6);text-align:center;margin-bottom:32px;}
+.login-form{background:#fff;border-radius:20px;padding:24px;}
+.field-group{margin-bottom:16px;}
+.field-lbl{font-size:11px;font-weight:500;color:var(--text-sec);margin-bottom:6px;}
+.field-input{width:100%;background:#F1EFE8;border:0.5px solid var(--neutral-mid);border-radius:10px;padding:11px 14px;font-size:13px;color:var(--text);}
+.field-input.placeholder{color:var(--text-hint);}
+.primary-btn{background:var(--teal-dark);color:#fff;border:none;border-radius:12px;padding:13px;width:100%;font-size:14px;font-weight:600;margin-top:4px;}
+.divider-row{display:flex;align-items:center;gap:10px;margin:16px 0;}
+.divider-line{flex:1;height:0.5px;background:var(--neutral-mid);}
+.divider-text{font-size:11px;color:var(--text-hint);}
+.secondary-btn{background:#fff;color:var(--teal-dark);border:1px solid var(--teal-dark);border-radius:12px;padding:12px;width:100%;font-size:14px;font-weight:500;}
+.forgot{text-align:center;font-size:12px;color:var(--teal-dark);margin-top:14px;}
+
+/* ===== REGISTER ===== */
+.reg-hdr{background:var(--teal-dark);padding:20px 20px 20px;display:flex;align-items:center;gap:12px;}
+.back-circle{width:32px;height:32px;border-radius:50%;background:rgba(255,255,255,0.15);display:flex;align-items:center;justify-content:center;}
+.back-arrow{border:solid #fff;border-width:0 2px 2px 0;display:inline-block;padding:4px;transform:rotate(135deg);margin-left:3px;}
+.reg-hdr-title{font-size:16px;font-weight:600;color:#fff;}
+.reg-body{padding:20px;}
+.reg-avatar-row{display:flex;justify-content:center;margin-bottom:20px;}
+.reg-avatar{width:64px;height:64px;border-radius:50%;background:var(--teal-light);border:2px dashed #5DCAA5;display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--teal-text);}
+.field-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.mode-row{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:6px;}
+.mode-btn{background:#fff;border:0.5px solid var(--neutral-mid);border-radius:10px;padding:10px 8px;text-align:center;}
+.mode-btn.sel{background:var(--teal-light);border-color:#5DCAA5;}
+.mode-icon{font-size:18px;margin-bottom:3px;}
+.mode-name{font-size:11px;color:var(--text-sec);font-weight:500;}
+.mode-btn.sel .mode-name{color:var(--teal-text);}
+.currency-row{display:flex;gap:8px;margin-top:6px;}
+.currency-pill{background:#fff;border:0.5px solid var(--neutral-mid);border-radius:8px;padding:7px 14px;font-size:12px;color:var(--text-hint);}
+.currency-pill.sel{background:var(--teal-light);border-color:#5DCAA5;color:var(--teal-text);font-weight:500;}
+.terms-row{display:flex;align-items:flex-start;gap:8px;margin:14px 0;}
+.checkbox{width:16px;height:16px;border-radius:4px;border:1px solid var(--neutral-mid);flex-shrink:0;margin-top:1px;background:var(--teal-dark);display:flex;align-items:center;justify-content:center;}
+.check-mark{color:#fff;font-size:10px;font-weight:700;}
+.terms-text{font-size:11px;color:var(--text-hint);line-height:1.5;}
+.terms-link{color:var(--teal-dark);}
+
+/* ===== DASHBOARD ===== */
+.hdr{background:var(--teal-dark);padding:20px 16px 24px;}
+.hdr-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:18px;}
+.hdr-greeting{font-size:11px;color:rgba(255,255,255,0.6);margin-bottom:2px;}
+.hdr-name{font-size:17px;font-weight:600;color:#fff;}
+.avatar{width:36px;height:36px;border-radius:50%;background:var(--teal-mid);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600;color:#fff;}
+.balance-card{background:rgba(255,255,255,0.12);border-radius:14px;padding:14px;}
+.balance-label{font-size:11px;color:rgba(255,255,255,0.6);margin-bottom:4px;}
+.balance-amount{font-size:28px;font-weight:700;color:#fff;letter-spacing:-0.5px;margin-bottom:8px;}
+.badge-row{display:flex;gap:7px;}
+.badge{display:inline-flex;align-items:center;gap:4px;font-size:10px;padding:3px 9px;border-radius:20px;font-weight:500;}
+.badge.surplus{background:var(--teal-mid);color:#fff;}
+.badge.month{background:rgba(255,255,255,0.15);color:rgba(255,255,255,0.8);}
+
+.body{padding:14px;}
+.insight{background:var(--amber-light);border-radius:10px;padding:10px 12px;margin-bottom:12px;border:0.5px solid #FAC775;}
+.insight-label{font-size:10px;color:var(--amber);font-weight:600;margin-bottom:2px;}
+.insight-text{font-size:12px;color:var(--amber-text);line-height:1.4;}
+
+.row-2{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px;}
+.stat{background:var(--white);border-radius:10px;padding:10px 12px;border:0.5px solid var(--neutral-mid);}
+.stat-lbl{font-size:10px;color:var(--text-hint);margin-bottom:3px;}
+.stat-val{font-size:16px;font-weight:600;}
+.stat-val.pos{color:var(--teal-dark);}
+.stat-val.neg{color:var(--coral-mid);}
+
+.section-hdr{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;}
+.section-title{font-size:12px;font-weight:600;color:var(--text);}
+.section-link{font-size:11px;color:var(--teal-dark);}
+
+.tx-item{display:flex;align-items:center;gap:10px;background:var(--white);border-radius:10px;padding:9px 11px;margin-bottom:6px;border:0.5px solid var(--neutral-mid);}
+.tx-icon{width:32px;height:32px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;}
+.tx-info{flex:1;}
+.tx-name{font-size:12px;font-weight:500;color:var(--text);}
+.tx-cat{font-size:10px;color:var(--text-hint);}
+.tx-val{font-size:13px;font-weight:600;}
+.tx-val.out{color:var(--coral-mid);}
+.tx-val.inc{color:var(--teal-dark);}
+
+/* ===== ADD EXPENSE ===== */
+.add-hdr{background:var(--teal-dark);padding:20px 16px;display:flex;align-items:center;gap:12px;}
+.add-hdr-title{font-size:15px;font-weight:600;color:#fff;}
+.add-body{padding:14px;}
+.amount-display{background:var(--white);border-radius:14px;padding:20px;text-align:center;margin-bottom:16px;border:0.5px solid var(--neutral-mid);}
+.amount-hint{font-size:11px;color:var(--text-hint);margin-bottom:6px;}
+.amount-big{font-size:34px;font-weight:700;color:var(--coral-mid);letter-spacing:-0.5px;}
+.amount-cursor{display:inline-block;width:2px;height:32px;background:var(--coral-mid);margin-left:2px;vertical-align:middle;}
+
+.cat-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;margin-top:6px;}
+.cat-pill{background:var(--white);border:0.5px solid var(--neutral-mid);border-radius:10px;padding:8px 4px;display:flex;flex-direction:column;align-items:center;gap:3px;}
+.cat-pill.sel{background:var(--teal-light);border-color:#5DCAA5;}
+.cat-pill-icon{width:28px;height:28px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:15px;}
+.cat-pill-name{font-size:9px;color:var(--text-hint);font-weight:500;}
+.cat-pill.sel .cat-pill-name{color:var(--teal-text);}
+
+.type-row{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-top:6px;}
+.type-btn{background:var(--white);border:0.5px solid var(--neutral-mid);border-radius:10px;padding:10px;text-align:center;font-size:11px;color:var(--text-hint);font-weight:500;}
+.type-btn.sel{background:var(--teal-light);border-color:#5DCAA5;color:var(--teal-text);}
+
+.gps-row{display:flex;align-items:center;gap:8px;background:var(--white);border-radius:10px;padding:10px 12px;margin-top:10px;border:0.5px solid var(--neutral-mid);}
+.gps-dot{width:8px;height:8px;border-radius:50%;background:var(--teal-mid);flex-shrink:0;}
+.gps-text{font-size:11px;color:var(--text-sec);flex:1;}
+.gps-btn{font-size:10px;color:var(--teal-dark);font-weight:600;}
+
+.save-btn{background:var(--teal-dark);color:#fff;border:none;border-radius:12px;padding:14px;width:100%;font-size:14px;font-weight:600;margin-top:16px;}
+
+/* ===== STATS ===== */
+.stats-hdr{background:var(--teal-dark);padding:20px 16px;}
+.stats-hdr-title{font-size:15px;font-weight:600;color:#fff;}
+.stats-hdr-sub{font-size:11px;color:rgba(255,255,255,0.6);margin-top:2px;}
+.tab-nav{display:flex;background:var(--neutral);border-radius:10px;padding:3px;margin-bottom:12px;}
+.tab-btn{flex:1;padding:7px;font-size:11px;font-weight:500;border:none;border-radius:8px;background:none;color:var(--text-hint);}
+.tab-btn.active{background:var(--white);color:var(--teal-dark);}
+
+.chart-card{background:var(--white);border-radius:12px;padding:14px;margin-bottom:10px;border:0.5px solid var(--neutral-mid);}
+.chart-title{font-size:11px;font-weight:600;color:var(--text);margin-bottom:12px;}
+.bar-chart{display:flex;align-items:flex-end;gap:7px;height:84px;}
+.bar-col{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;}
+.bar{width:100%;border-radius:4px 4px 0 0;}
+.bar-lbl{font-size:9px;color:var(--text-hint);}
+.bar-lbl.active{color:var(--teal-dark);font-weight:600;}
+
+.donut-row{display:flex;align-items:center;gap:16px;}
+.donut-placeholder{width:72px;height:72px;border-radius:50%;flex-shrink:0;background:conic-gradient(#0F6E56 0% 38%, #BA7517 38% 60%, #D85A30 60% 75%, #D3D1C7 75% 100%);}
+.legend{flex:1;}
+.legend-item{display:flex;align-items:center;gap:7px;margin-bottom:6px;}
+.legend-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+.legend-name{font-size:11px;color:var(--text-sec);flex:1;}
+.legend-pct{font-size:11px;font-weight:600;color:var(--text);}
+
+.trend-row{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+.trend-card{background:var(--white);border-radius:10px;padding:10px 12px;border:0.5px solid var(--neutral-mid);}
+.trend-name{font-size:10px;color:var(--text-hint);margin-bottom:3px;}
+.trend-val{font-size:15px;font-weight:600;color:var(--text);}
+.trend-change{font-size:10px;margin-top:2px;font-weight:500;}
+.trend-change.up{color:var(--coral-mid);}
+.trend-change.down{color:var(--teal-dark);}
+
+/* ===== GOALS ===== */
+.goals-hdr{background:var(--teal-dark);padding:20px 16px;}
+.goals-hdr-title{font-size:15px;font-weight:600;color:#fff;}
+.goal-card{background:var(--white);border-radius:12px;padding:13px 14px;margin-bottom:8px;border:0.5px solid var(--neutral-mid);}
+.goal-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px;}
+.goal-icon-wrap{display:flex;align-items:center;gap:9px;}
+.goal-icon{width:34px;height:34px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:17px;}
+.goal-name{font-size:13px;font-weight:600;color:var(--text);}
+.goal-sub{font-size:10px;color:var(--text-hint);margin-top:1px;}
+.goal-pct-badge{font-size:11px;font-weight:600;padding:3px 9px;border-radius:20px;}
+.pct-amber{background:var(--amber-light);color:var(--amber-text);}
+.pct-teal{background:var(--teal-light);color:var(--teal-text);}
+.goal-bar-bg{background:var(--neutral);border-radius:4px;height:6px;width:100%;margin-bottom:7px;}
+.goal-bar-fill{border-radius:4px;height:6px;}
+.goal-footer{display:flex;justify-content:space-between;}
+.goal-saved{font-size:11px;color:var(--text-sec);font-weight:500;}
+.goal-remaining{font-size:11px;color:var(--text-hint);}
+.add-goal-btn{background:var(--teal-light);border:0.5px solid #5DCAA5;border-radius:12px;padding:13px;width:100%;font-size:13px;font-weight:600;color:var(--teal-text);text-align:center;margin-top:4px;}
+
+/* ===== FAMILY ===== */
+.family-hdr{background:var(--teal-dark);padding:20px 16px;}
+.family-hdr-title{font-size:15px;font-weight:600;color:#fff;}
+.member-card{background:var(--white);border-radius:12px;padding:13px 14px;margin-bottom:8px;border:0.5px solid var(--neutral-mid);}
+.member-row{display:flex;align-items:center;gap:10px;margin-bottom:10px;}
+.member-avatar{width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600;color:#fff;}
+.member-name{font-size:13px;font-weight:600;color:var(--text);}
+.member-role{font-size:10px;color:var(--text-hint);}
+.member-stats{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;}
+.mstat{background:var(--neutral);border-radius:8px;padding:7px 8px;}
+.mstat-lbl{font-size:9px;color:var(--text-hint);margin-bottom:2px;}
+.mstat-val{font-size:12px;font-weight:600;}
+.mstat-val.pos{color:var(--teal-dark);}
+.mstat-val.neg{color:var(--coral-mid);}
+
+/* ===== BOTTOM NAV ===== */
+.nav{display:flex;background:var(--white);border-top:0.5px solid var(--neutral-mid);padding:8px 0 14px;}
+.nav-btn{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;}
+.nav-icon{width:22px;height:22px;border-radius:6px;background:var(--neutral-mid);}
+.nav-icon.active{background:var(--teal-dark);}
+.nav-label{font-size:9px;color:var(--text-hint);font-weight:500;}
+.nav-label.active{color:var(--teal-dark);font-weight:600;}
+</style>
+</head>
+<body>
+
+<h1 class="app-title">FinanceApp — Mockup</h1>
+<p class="app-sub">Todos os ecrãs · usar com HTML to Figma ou Builder.io</p>
+
+<div class="screens-row">
+
+<!-- LOGIN -->
+<div class="screen-wrap">
+<div class="screen-label">Login</div>
+<div class="phone"><div class="phone-inner">
+  <div class="notch"><div class="notch-pill"></div></div>
+  <div class="status"><span>9:41</span><span>●●● WiFi 100%</span></div>
+  <div class="login-bg">
+    <div class="login-logo"><div class="login-logo-inner"></div></div>
+    <div class="login-title">FinanceApp</div>
+    <div class="login-sub">O teu gestor financeiro pessoal</div>
+    <div class="login-form">
+      <div class="field-group">
+        <div class="field-lbl">Email</div>
+        <div class="field-input">luis@email.com</div>
+      </div>
+      <div class="field-group">
+        <div class="field-lbl">Palavra-passe</div>
+        <div class="field-input">••••••••</div>
+      </div>
+      <div class="primary-btn" style="display:flex;align-items:center;justify-content:center;border-radius:12px;">Entrar</div>
+      <div class="divider-row">
+        <div class="divider-line"></div>
+        <div class="divider-text">ou</div>
+        <div class="divider-line"></div>
+      </div>
+      <div class="secondary-btn" style="display:flex;align-items:center;justify-content:center;border-radius:12px;">Criar conta</div>
+      <div class="forgot">Esqueci a palavra-passe</div>
+    </div>
+  </div>
+</div></div>
+</div>
+
+<!-- REGISTER -->
+<div class="screen-wrap">
+<div class="screen-label">Registo</div>
+<div class="phone"><div class="phone-inner">
+  <div class="notch"><div class="notch-pill"></div></div>
+  <div class="status" style="background:var(--teal-dark);"><span>9:41</span><span>●●● WiFi 100%</span></div>
+  <div class="reg-hdr">
+    <div class="back-circle"><div class="back-arrow"></div></div>
+    <div class="reg-hdr-title">Criar conta</div>
+  </div>
+  <div class="reg-body">
+    <div class="reg-avatar-row">
+      <div class="reg-avatar" style="font-size:11px;text-align:center;line-height:1.3;">Foto<br>+</div>
+    </div>
+    <div class="field-row">
+      <div class="field-group">
+        <div class="field-lbl">Nome</div>
+        <div class="field-input">Luís</div>
+      </div>
+      <div class="field-group">
+        <div class="field-lbl">Apelido</div>
+        <div class="field-input">Silva</div>
+      </div>
+    </div>
+    <div class="field-group" style="margin-top:10px;">
+      <div class="field-lbl">Email</div>
+      <div class="field-input">luis@email.com</div>
+    </div>
+    <div class="field-group" style="margin-top:10px;">
+      <div class="field-lbl">Palavra-passe</div>
+      <div class="field-input">••••••••</div>
+    </div>
+    <div class="field-lbl" style="margin-top:12px;">Modo de utilização</div>
+    <div class="mode-row">
+      <div class="mode-btn sel">
+        <div class="mode-icon">👤</div>
+        <div class="mode-name">Individual</div>
+      </div>
+      <div class="mode-btn">
+        <div class="mode-icon">👨‍👩‍👦</div>
+        <div class="mode-name">Familiar</div>
+      </div>
+    </div>
+    <div class="field-lbl" style="margin-top:12px;">Moeda</div>
+    <div class="currency-row">
+      <div class="currency-pill sel">€ EUR</div>
+      <div class="currency-pill">$ USD</div>
+      <div class="currency-pill">£ GBP</div>
+    </div>
+    <div class="terms-row">
+      <div class="checkbox"><span class="check-mark">✓</span></div>
+      <div class="terms-text">Aceito os <span class="terms-link">Termos de Serviço</span> e a <span class="terms-link">Política de Privacidade</span></div>
+    </div>
+    <div class="primary-btn" style="display:flex;align-items:center;justify-content:center;border-radius:12px;font-size:14px;font-weight:600;color:#fff;background:var(--teal-dark);padding:13px;">Criar conta</div>
+  </div>
+</div></div>
+</div>
+
+<!-- DASHBOARD -->
+<div class="screen-wrap">
+<div class="screen-label">Dashboard</div>
+<div class="phone"><div class="phone-inner">
+  <div class="notch"><div class="notch-pill"></div></div>
+  <div class="status"><span>9:41</span><span>●●● WiFi 100%</span></div>
+  <div class="hdr">
+    <div class="hdr-top">
+      <div>
+        <div class="hdr-greeting">Bom dia 👋</div>
+        <div class="hdr-name">Luís Silva</div>
+      </div>
+      <div class="avatar">LS</div>
+    </div>
+    <div class="balance-card">
+      <div class="balance-label">Saldo disponível · Abril</div>
+      <div class="balance-amount">1 840 €</div>
+      <div class="badge-row">
+        <span class="badge surplus">▲ +300€ superávit</span>
+        <span class="badge month">Abril 2026</span>
+      </div>
+    </div>
+  </div>
+  <div class="body">
+    <div class="insight">
+      <div class="insight-label">💡 Insight do mês</div>
+      <div class="insight-text">Gastaste +28% em lazer vs março. Continuas no caminho para as férias de verão.</div>
+    </div>
+    <div class="row-2">
+      <div class="stat"><div class="stat-lbl">Rendimentos</div><div class="stat-val pos">1 500 €</div></div>
+      <div class="stat"><div class="stat-lbl">Despesas</div><div class="stat-val neg">1 200 €</div></div>
+    </div>
+    <div class="section-hdr">
+      <span class="section-title">Últimas transações</span>
+      <span class="section-link">ver tudo</span>
+    </div>
+    <div class="tx-item">
+      <div class="tx-icon" style="background:var(--teal-light);">🛒</div>
+      <div class="tx-info"><div class="tx-name">Pingo Doce</div><div class="tx-cat">Alimentação · hoje</div></div>
+      <div class="tx-val out">–63 €</div>
+    </div>
+    <div class="tx-item">
+      <div class="tx-icon" style="background:var(--amber-light);">⛽</div>
+      <div class="tx-info"><div class="tx-name">Galp</div><div class="tx-cat">Transporte · ontem</div></div>
+      <div class="tx-val out">–45 €</div>
+    </div>
+    <div class="tx-item">
+      <div class="tx-icon" style="background:var(--teal-light);">💰</div>
+      <div class="tx-info"><div class="tx-name">Salário</div><div class="tx-cat">Rendimento · 25 abr</div></div>
+      <div class="tx-val inc">+1 500 €</div>
+    </div>
+    <div class="tx-item">
+      <div class="tx-icon" style="background:var(--coral-light);">🎬</div>
+      <div class="tx-info"><div class="tx-name">Netflix</div><div class="tx-cat">Subscrições · 22 abr</div></div>
+      <div class="tx-val out">–18 €</div>
+    </div>
+  </div>
+  <div class="nav">
+    <div class="nav-btn"><div class="nav-icon active"></div><div class="nav-label active">Início</div></div>
+    <div class="nav-btn"><div class="nav-icon"></div><div class="nav-label">Adicionar</div></div>
+    <div class="nav-btn"><div class="nav-icon"></div><div class="nav-label">Stats</div></div>
+    <div class="nav-btn"><div class="nav-icon"></div><div class="nav-label">Objetivos</div></div>
+    <div class="nav-btn"><div class="nav-icon"></div><div class="nav-label">Família</div></div>
+  </div>
+</div></div>
+</div>
+
+<!-- ADD EXPENSE -->
+<div class="screen-wrap">
+<div class="screen-label">Adicionar despesa</div>
+<div class="phone"><div class="phone-inner">
+  <div class="notch"><div class="notch-pill"></div></div>
+  <div class="status" style="background:var(--teal-dark);"><span>9:41</span><span>●●● WiFi 100%</span></div>
+  <div class="add-hdr">
+    <div class="back-circle"><div class="back-arrow"></div></div>
+    <div class="add-hdr-title">Nova despesa</div>
+  </div>
+  <div class="add-body">
+    <div class="amount-display">
+      <div class="amount-hint">Valor da despesa</div>
+      <div class="amount-big">– 63,00 €<span class="amount-cursor"></span></div>
+    </div>
+    <div class="field-lbl">Categoria</div>
+    <div class="cat-grid">
+      <div class="cat-pill sel"><div class="cat-pill-icon" style="background:var(--teal-light);">🛒</div><div class="cat-pill-name">Alimentação</div></div>
+      <div class="cat-pill"><div class="cat-pill-icon" style="background:var(--amber-light);">🚗</div><div class="cat-pill-name">Transporte</div></div>
+      <div class="cat-pill"><div class="cat-pill-icon" style="background:var(--coral-light);">🎭</div><div class="cat-pill-name">Lazer</div></div>
+      <div class="cat-pill"><div class="cat-pill-icon" style="background:#F1EFE8;">🏠</div><div class="cat-pill-name">Casa</div></div>
+      <div class="cat-pill"><div class="cat-pill-icon" style="background:var(--teal-light);">💊</div><div class="cat-pill-name">Saúde</div></div>
+      <div class="cat-pill"><div class="cat-pill-icon" style="background:var(--amber-light);">📱</div><div class="cat-pill-name">Subscr.</div></div>
+      <div class="cat-pill"><div class="cat-pill-icon" style="background:var(--coral-light);">👕</div><div class="cat-pill-name">Compras</div></div>
+      <div class="cat-pill"><div class="cat-pill-icon" style="background:#F1EFE8;">📦</div><div class="cat-pill-name">Outros</div></div>
+    </div>
+    <div class="field-lbl" style="margin-top:12px;">Tipo</div>
+    <div class="type-row">
+      <div class="type-btn sel">Única</div>
+      <div class="type-btn">Recorrente</div>
+    </div>
+    <div class="field-lbl" style="margin-top:12px;">Descrição</div>
+    <div class="field-input">Pingo Doce — compras semanais</div>
+    <div class="field-lbl" style="margin-top:12px;">Data</div>
+    <div class="field-input">29 de abril de 2026</div>
+    <div class="gps-row">
+      <div class="gps-dot"></div>
+      <div class="gps-text">Localização detectada: Pingo Doce, Castelo Branco</div>
+      <div class="gps-btn">✓ GPS</div>
+    </div>
+    <div class="save-btn" style="display:flex;align-items:center;justify-content:center;color:#fff;">Guardar despesa</div>
+  </div>
+</div></div>
+</div>
+
+<!-- STATS -->
+<div class="screen-wrap">
+<div class="screen-label">Estatísticas</div>
+<div class="phone"><div class="phone-inner">
+  <div class="notch"><div class="notch-pill"></div></div>
+  <div class="status" style="background:var(--teal-dark);"><span>9:41</span><span>●●● WiFi 100%</span></div>
+  <div class="stats-hdr">
+    <div class="stats-hdr-title">Estatísticas</div>
+    <div class="stats-hdr-sub">Abril 2026</div>
+  </div>
+  <div class="body">
+    <div class="tab-nav">
+      <div class="tab-btn active">Mensal</div>
+      <div class="tab-btn">Categorias</div>
+      <div class="tab-btn">Tendência</div>
+    </div>
+    <div class="chart-card">
+      <div class="chart-title">Despesas por mês</div>
+      <div class="bar-chart">
+        <div class="bar-col"><div class="bar" style="height:44px;background:var(--neutral-mid);"></div><div class="bar-lbl">Jan</div></div>
+        <div class="bar-col"><div class="bar" style="height:54px;background:var(--neutral-mid);"></div><div class="bar-lbl">Fev</div></div>
+        <div class="bar-col"><div class="bar" style="height:38px;background:var(--neutral-mid);"></div><div class="bar-lbl">Mar</div></div>
+        <div class="bar-col"><div class="bar" style="height:76px;background:var(--teal-dark);"></div><div class="bar-lbl active">Abr</div></div>
+        <div class="bar-col"><div class="bar" style="height:20px;background:var(--neutral-mid);opacity:0.4;"></div><div class="bar-lbl">Mai</div></div>
+      </div>
+    </div>
+    <div class="chart-card">
+      <div class="chart-title">Por categoria</div>
+      <div class="donut-row">
+        <div class="donut-placeholder"></div>
+        <div class="legend">
+          <div class="legend-item"><div class="legend-dot" style="background:#0F6E56;"></div><span class="legend-name">Alimentação</span><span class="legend-pct">38%</span></div>
+          <div class="legend-item"><div class="legend-dot" style="background:#BA7517;"></div><span class="legend-name">Transporte</span><span class="legend-pct">22%</span></div>
+          <div class="legend-item"><div class="legend-dot" style="background:#D85A30;"></div><span class="legend-name">Lazer</span><span class="legend-pct">15%</span></div>
+          <div class="legend-item"><div class="legend-dot" style="background:#D3D1C7;"></div><span class="legend-name">Outros</span><span class="legend-pct">25%</span></div>
+        </div>
+      </div>
+    </div>
+    <div class="trend-row">
+      <div class="trend-card"><div class="trend-name">Média mensal</div><div class="trend-val">1 140 €</div><div class="trend-change up">▲ +5% vs ano</div></div>
+      <div class="trend-card"><div class="trend-name">Melhor mês</div><div class="trend-val">950 €</div><div class="trend-change down">▼ março</div></div>
+    </div>
+  </div>
+  <div class="nav">
+    <div class="nav-btn"><div class="nav-icon"></div><div class="nav-label">Início</div></div>
+    <div class="nav-btn"><div class="nav-icon"></div><div class="nav-label">Adicionar</div></div>
+    <div class="nav-btn"><div class="nav-icon active"></div><div class="nav-label active">Stats</div></div>
+    <div class="nav-btn"><div class="nav-icon"></div><div class="nav-label">Objetivos</div></div>
+    <div class="nav-btn"><div class="nav-icon"></div><div class="nav-label">Família</div></div>
+  </div>
+</div></div>
+</div>
+
+<!-- GOALS -->
+<div class="screen-wrap">
+<div class="screen-label">Objetivos</div>
+<div class="phone"><div class="phone-inner">
+  <div class="notch"><div class="notch-pill"></div></div>
+  <div class="status" style="background:var(--teal-dark);"><span>9:41</span><span>●●● WiFi 100%</span></div>
+  <div class="goals-hdr">
+    <div class="goals-hdr-title">Objetivos financeiros</div>
+  </div>
+  <div class="body">
+    <div class="goal-card">
+      <div class="goal-top">
+        <div class="goal-icon-wrap">
+          <div class="goal-icon" style="background:var(--amber-light);">✈️</div>
+          <div><div class="goal-name">Férias de verão</div><div class="goal-sub">Meta: julho 2026</div></div>
+        </div>
+        <span class="goal-pct-badge pct-amber">62%</span>
+      </div>
+      <div class="goal-bar-bg"><div class="goal-bar-fill" style="width:62%;background:var(--amber);"></div></div>
+      <div class="goal-footer"><span class="goal-saved">620 € poupados</span><span class="goal-remaining">faltam 380 €</span></div>
+    </div>
+    <div class="goal-card">
+      <div class="goal-top">
+        <div class="goal-icon-wrap">
+          <div class="goal-icon" style="background:var(--teal-light);">💻</div>
+          <div><div class="goal-name">Portátil novo</div><div class="goal-sub">Meta: outubro 2026</div></div>
+        </div>
+        <span class="goal-pct-badge pct-teal">31%</span>
+      </div>
+      <div class="goal-bar-bg"><div class="goal-bar-fill" style="width:31%;background:var(--teal-dark);"></div></div>
+      <div class="goal-footer"><span class="goal-saved">310 € poupados</span><span class="goal-remaining">faltam 690 €</span></div>
+    </div>
+    <div class="goal-card">
+      <div class="goal-top">
+        <div class="goal-icon-wrap">
+          <div class="goal-icon" style="background:#F1EFE8;">🛡️</div>
+          <div><div class="goal-name">Fundo de emergência</div><div class="goal-sub">Meta: 3 meses despesas</div></div>
+        </div>
+        <span class="goal-pct-badge pct-amber">80%</span>
+      </div>
+      <div class="goal-bar-bg"><div class="goal-bar-fill" style="width:80%;background:var(--amber);"></div></div>
+      <div class="goal-footer"><span class="goal-saved">2 880 € poupados</span><span class="goal-remaining">faltam 720 €</span></div>
+    </div>
+    <div class="add-goal-btn">+ Novo objetivo</div>
+  </div>
+  <div class="nav">
+    <div class="nav-btn"><div class="nav-icon"></div><div class="nav-label">Início</div></div>
+    <div class="nav-btn"><div class="nav-icon"></div><div class="nav-label">Adicionar</div></div>
+    <div class="nav-btn"><div class="nav-icon"></div><div class="nav-label">Stats</div></div>
+    <div class="nav-btn"><div class="nav-icon active"></div><div class="nav-label active">Objetivos</div></div>
+    <div class="nav-btn"><div class="nav-icon"></div><div class="nav-label">Família</div></div>
+  </div>
+</div></div>
+</div>
+
+<!-- FAMILY -->
+<div class="screen-wrap">
+<div class="screen-label">Agregado familiar</div>
+<div class="phone"><div class="phone-inner">
+  <div class="notch"><div class="notch-pill"></div></div>
+  <div class="status" style="background:var(--teal-dark);"><span>9:41</span><span>●●● WiFi 100%</span></div>
+  <div class="family-hdr">
+    <div class="family-hdr-title">Agregado familiar</div>
+  </div>
+  <div class="body">
+    <div class="row-2" style="margin-bottom:14px;">
+      <div class="stat"><div class="stat-lbl">Total rendimentos</div><div class="stat-val pos">3 200 €</div></div>
+      <div class="stat"><div class="stat-lbl">Total despesas</div><div class="stat-val neg">2 450 €</div></div>
+    </div>
+    <div class="section-hdr" style="margin-bottom:10px;">
+      <span class="section-title">Membros</span>
+      <span class="section-link">+ Adicionar</span>
+    </div>
+    <div class="member-card">
+      <div class="member-row">
+        <div class="member-avatar" style="background:var(--teal-dark);">LS</div>
+        <div><div class="member-name">Luís Silva</div><div class="member-role">Titular</div></div>
+      </div>
+      <div class="member-stats">
+        <div class="mstat"><div class="mstat-lbl">Rendimento</div><div class="mstat-val pos">1 500 €</div></div>
+        <div class="mstat"><div class="mstat-lbl">Despesas</div><div class="mstat-val neg">1 200 €</div></div>
+        <div class="mstat"><div class="mstat-lbl">Saldo</div><div class="mstat-val pos">+300 €</div></div>
+      </div>
+    </div>
+    <div class="member-card">
+      <div class="member-row">
+        <div class="member-avatar" style="background:var(--amber);">AS</div>
+        <div><div class="member-name">Ana Silva</div><div class="member-role">Cônjuge</div></div>
+      </div>
+      <div class="member-stats">
+        <div class="mstat"><div class="mstat-lbl">Rendimento</div><div class="mstat-val pos">1 700 €</div></div>
+        <div class="mstat"><div class="mstat-lbl">Despesas</div><div class="mstat-val neg">1 250 €</div></div>
+        <div class="mstat"><div class="mstat-lbl">Saldo</div><div class="mstat-val pos">+450 €</div></div>
+      </div>
+    </div>
+    <div class="add-goal-btn">+ Adicionar membro</div>
+  </div>
+  <div class="nav">
+    <div class="nav-btn"><div class="nav-icon"></div><div class="nav-label">Início</div></div>
+    <div class="nav-btn"><div class="nav-icon"></div><div class="nav-label">Adicionar</div></div>
+    <div class="nav-btn"><div class="nav-icon"></div><div class="nav-label">Stats</div></div>
+    <div class="nav-btn"><div class="nav-icon"></div><div class="nav-label">Objetivos</div></div>
+    <div class="nav-btn"><div class="nav-icon active"></div><div class="nav-label active">Família</div></div>
+  </div>
+</div></div>
+</div>
+
+</div>
+</body>
+</html>
