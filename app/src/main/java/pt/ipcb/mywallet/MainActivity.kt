@@ -8,6 +8,7 @@ import androidx.compose.runtime.Composable
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import pt.ipcb.mywallet.data.SessionManager
 import pt.ipcb.mywallet.navigation.Screen
 import pt.ipcb.mywallet.ui.auth.LoginScreen
 import pt.ipcb.mywallet.ui.auth.RegisterScreen
@@ -22,39 +23,36 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+        val startRoute = if (SessionManager(this).isLoggedIn()) Screen.Dashboard.route else Screen.Login.route
         setContent {
             MyWalletTheme {
-                AppNavHost()
+                AppNavHost(startDestination = startRoute)
             }
         }
     }
 }
 
 @Composable
-private fun AppNavHost() {
+private fun AppNavHost(startDestination: String) {
     val navController = rememberNavController()
-    NavHost(
-        navController = navController,
-        startDestination = Screen.Login.route,
-    ) {
+    NavHost(navController = navController, startDestination = startDestination) {
+
         composable(Screen.Login.route) {
             LoginScreen(
-                onLoginClick = { _, _ ->
-                    // TODO: authenticate with Firebase Auth, then navigate on success
+                onLoginSuccess = {
                     navController.navigate(Screen.Dashboard.route) {
                         popUpTo(Screen.Login.route) { inclusive = true }
                     }
                 },
                 onRegisterClick = { navController.navigate(Screen.Register.route) },
-                onForgotPasswordClick = { /* TODO: password reset */ },
+                onForgotPasswordClick = {},
             )
         }
 
         composable(Screen.Register.route) {
             RegisterScreen(
                 onBackClick = { navController.popBackStack() },
-                onRegisterClick = {
-                    // TODO: create account with Firebase Auth, then navigate
+                onRegisterSuccess = {
                     navController.navigate(Screen.Dashboard.route) {
                         popUpTo(Screen.Login.route) { inclusive = true }
                     }
