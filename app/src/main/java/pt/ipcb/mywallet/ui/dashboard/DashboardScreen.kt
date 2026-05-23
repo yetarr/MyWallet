@@ -54,6 +54,8 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -351,7 +353,10 @@ private fun TransactionDetailDialog(
                     else -> "Única vez"
                 }
                 DetailRow(label = "Tipo", value = typeLabel)
-                if (txn.locationName != null) DetailRow(label = "Localização", value = txn.locationName)
+                if (txn.locationName != null) DetailRow(
+                    label = "Localização",
+                    value = txn.locationName,
+                )
             }
         },
         confirmButton = { TextButton(onClick = onDismiss) { Text("Fechar", color = TealDark) } },
@@ -361,9 +366,27 @@ private fun TransactionDetailDialog(
 
 @Composable
 private fun DetailRow(label: String, value: String) {
-    Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-        Text(text = label, fontSize = 12.sp, color = TextHint, modifier = Modifier.weight(1f))
-        Text(text = value, fontSize = 12.sp, color = TextPrimary, fontWeight = FontWeight.Medium)
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.Top
+    ) {
+        Text(
+            text = label,
+            fontSize = 13.sp,
+            color = TextHint,
+            modifier = Modifier.weight(0.4f)
+        )
+        Text(
+            text = value,
+            fontSize = 13.sp,
+            color = TextSecondary,
+            modifier = Modifier.weight(0.6f),
+            softWrap = true,
+            overflow = TextOverflow.Ellipsis,
+            maxLines = 2,
+            textAlign = TextAlign.End
+        )
     }
 }
 
