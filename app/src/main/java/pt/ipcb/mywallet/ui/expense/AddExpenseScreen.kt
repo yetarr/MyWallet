@@ -1,6 +1,9 @@
 package pt.ipcb.mywallet.ui.expense
 
 import android.app.Activity
+import android.content.Context
+import android.location.Geocoder
+import android.location.Location
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -54,6 +57,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -62,8 +66,10 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.app.ActivityCompat
 import androidx.core.view.WindowCompat
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.google.android.gms.location.LocationServices
 import pt.ipcb.mywallet.ui.components.FieldLabel
 import pt.ipcb.mywallet.ui.components.PrimaryButton
 import pt.ipcb.mywallet.ui.components.TealBackHeader
@@ -82,6 +88,7 @@ import pt.ipcb.mywallet.ui.theme.TextSecondary
 import pt.ipcb.mywallet.utils.Formatters
 import pt.ipcb.mywallet.viewmodel.AddExpenseViewModel
 import pt.ipcb.mywallet.ui.components.AppTextField
+import java.util.Locale
 
 private data class Category(val icon: ImageVector, val iconBgColor: Color, val label: String)
 
@@ -101,8 +108,10 @@ private val categories = listOf(
 fun AddExpenseScreen(
     onBackClick: () -> Unit = {},
     onSaveClick: () -> Unit = {},
+    location: Location? = null,
     vm: AddExpenseViewModel = viewModel(),
 ) {
+    val context = LocalContext.current
     val saved by vm.saved.collectAsState()
     LaunchedEffect(saved) {
         if (saved) { vm.resetSaved(); onSaveClick() }
@@ -305,7 +314,7 @@ fun AddExpenseScreen(
                         endDate = recurEndDate,
                         description = description,
                         date = System.currentTimeMillis(),
-                        locationName = null,
+                        locationName = location?.toAddressName(context),
                     )
                 },
                 enabled = amount.isNotBlank(),
@@ -332,6 +341,23 @@ fun AddExpenseScreen(
         ) {
             DatePicker(state = datePickerState)
         }
+    }
+}
+
+fun Location.toAddressName(context: Context): String? {
+    return try {
+        val geocoder = Geocoder(context, Locale.getDefault())
+        val address = geocoder.getFromLocation(latitude, longitude, 1)?.firstOrNull() ?: return null
+
+        listOfNotNull(
+            address.thoroughfare,
+            address.subThoroughfare,
+            address.locality,
+            address.adminArea,
+            address.countryName
+        ).joinToString(", ")
+    } catch (e: Exception) {
+        null
     }
 }
 
