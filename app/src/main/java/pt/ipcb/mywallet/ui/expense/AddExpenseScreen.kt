@@ -106,6 +106,7 @@ private val categories = listOf(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AddExpenseScreen(
+    transactionId: Int? = null,
     onBackClick: () -> Unit = {},
     onSaveClick: () -> Unit = {},
     location: Location? = null,
@@ -129,13 +130,45 @@ fun AddExpenseScreen(
     var amount by remember { mutableStateOf("") }
     var selectedCategory by remember { mutableStateOf(0) }
     var isRecurring by remember { mutableStateOf(false) }
+    var recurringFrequency by remember { mutableStateOf("Mensal") }
     var recurEndDate by remember { mutableStateOf<Long?>(null) }
     var showEndDatePicker by remember { mutableStateOf(false) }
     var description by remember { mutableStateOf("") }
+    var useLocation by remember { mutableStateOf(false) }
     val dateStr = Formatters.formatDate(System.currentTimeMillis())
 
+    val isEditing = transactionId != null
+    val existingTransaction by vm.existingTransaction.collectAsState()
+    var prefilled by remember { mutableStateOf(false) }
+
+    LaunchedEffect(Unit) {
+        if (transactionId != null) vm.loadTransaction(transactionId)
+    }
+    LaunchedEffect(existingTransaction) {
+        if (!prefilled && existingTransaction != null) {
+            prefilled = true
+            existingTransaction!!.let { txn ->
+                isExpense = txn.isExpense
+                amount = txn.amount.toBigDecimal().stripTrailingZeros().toPlainString()
+                selectedCategory = categories.indexOfFirst { it.label == txn.category }.coerceAtLeast(0)
+                isRecurring = txn.isRecurring
+                recurringFrequency = txn.recurringFrequency ?: "Mensal"
+                recurEndDate = txn.endDate
+                description = txn.description
+            }
+        }
+    }
+
     Column(modifier = Modifier.fillMaxSize().background(Neutral)) {
-        TealBackHeader(title = if (isExpense) "Nova despesa" else "Novo rendimento", onBackClick = onBackClick)
+        TealBackHeader(
+            title = when {
+                isEditing && isExpense -> "Editar despesa"
+                isEditing -> "Editar rendimento"
+                isExpense -> "Nova despesa"
+                else -> "Novo rendimento"
+            },
+            onBackClick = onBackClick,
+        )
 
         Column(
             modifier = Modifier
@@ -198,20 +231,21 @@ fun AddExpenseScreen(
 
             Spacer(modifier = Modifier.height(14.dp))
 
-            FieldLabel(text = "Categoria")
-            Spacer(modifier = Modifier.height(6.dp))
-            Column(verticalArrangement = Arrangement.spacedBy(7.dp)) {
-                categories.chunked(4).forEach { rowItems ->
-                    Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(7.dp)) {
-                        rowItems.forEach { cat ->
-                            val idx = categories.indexOf(cat)
-                            CategoryPill(category = cat, selected = selectedCategory == idx, onClick = { selectedCategory = idx }, modifier = Modifier.weight(1f))
+            if (isExpense) {
+                FieldLabel(text = "Categoria")
+                Spacer(modifier = Modifier.height(6.dp))
+                Column(verticalArrangement = Arrangement.spacedBy(7.dp)) {
+                    categories.chunked(4).forEach { rowItems ->
+                        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(7.dp)) {
+                            rowItems.forEach { cat ->
+                                val idx = categories.indexOf(cat)
+                                CategoryPill(category = cat, selected = selectedCategory == idx, onClick = { selectedCategory = idx }, modifier = Modifier.weight(1f))
+                            }
                         }
                     }
                 }
+                Spacer(modifier = Modifier.height(12.dp))
             }
-
-            Spacer(modifier = Modifier.height(12.dp))
 
             FieldLabel(text = "Tipo")
             Spacer(modifier = Modifier.height(6.dp))
@@ -220,8 +254,21 @@ fun AddExpenseScreen(
                 TypeButton(text = "Recorrente", selected = isRecurring, onClick = { isRecurring = true }, modifier = Modifier.weight(1f))
             }
 
-            // End date picker — only shown for recurring
+            // Frequency + end date — only shown for recurring
             if (isRecurring) {
+                Spacer(modifier = Modifier.height(10.dp))
+                FieldLabel(text = "Frequência")
+                Spacer(modifier = Modifier.height(6.dp))
+                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(7.dp)) {
+                    listOf("Diário", "Semanal", "Mensal", "Anual").forEach { freq ->
+                        TypeButton(
+                            text = freq,
+                            selected = recurringFrequency == freq,
+                            onClick = { recurringFrequency = freq },
+                            modifier = Modifier.weight(1f),
+                        )
+                    }
+                }
                 Spacer(modifier = Modifier.height(10.dp))
                 FieldLabel(text = "Data de fim (opcional)")
                 Spacer(modifier = Modifier.height(6.dp))
@@ -277,40 +324,58 @@ fun AddExpenseScreen(
                 Text(text = dateStr, fontSize = 13.sp, color = TextSecondary)
             }
 
-            Spacer(modifier = Modifier.height(10.dp))
-
-            // GPS row
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clip(RoundedCornerShape(10.dp))
-                    .background(Color.White)
-                    .border(0.5.dp, NeutralMid, RoundedCornerShape(10.dp))
-                    .padding(horizontal = 12.dp, vertical = 10.dp),
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                Box(modifier = Modifier.size(8.dp).clip(CircleShape).background(TealMid))
-                Spacer(modifier = Modifier.size(8.dp))
-                Text(text = "Localização detectada automaticamente", fontSize = 11.sp, color = TextSecondary, modifier = Modifier.weight(1f))
-                Spacer(modifier = Modifier.size(8.dp))
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Icon(imageVector = Icons.Default.GpsFixed, contentDescription = null, tint = TealDark, modifier = Modifier.size(12.dp))
-                    Spacer(modifier = Modifier.size(3.dp))
-                    Text(text = "GPS", fontSize = 10.sp, fontWeight = FontWeight.SemiBold, color = TealDark)
+            if (isExpense) {
+                Spacer(modifier = Modifier.height(10.dp))
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clip(RoundedCornerShape(10.dp))
+                        .background(Color.White)
+                        .border(0.5.dp, NeutralMid, RoundedCornerShape(10.dp))
+                        .clickable { useLocation = !useLocation }
+                        .padding(horizontal = 12.dp, vertical = 10.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Box(modifier = Modifier.size(8.dp).clip(CircleShape).background(if (useLocation) TealMid else NeutralMid))
+                    Spacer(modifier = Modifier.size(8.dp))
+                    Text(
+                        text = if (useLocation) "Localização detectada automaticamente" else "Adicionar localização",
+                        fontSize = 11.sp,
+                        color = if (useLocation) TextSecondary else TextHint,
+                        modifier = Modifier.weight(1f),
+                    )
+                    Spacer(modifier = Modifier.size(8.dp))
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Icon(
+                            imageVector = Icons.Default.GpsFixed,
+                            contentDescription = null,
+                            tint = if (useLocation) TealDark else NeutralMid,
+                            modifier = Modifier.size(12.dp),
+                        )
+                        if (useLocation) {
+                            Spacer(modifier = Modifier.size(3.dp))
+                            Text(text = "GPS", fontSize = 10.sp, fontWeight = FontWeight.SemiBold, color = TealDark)
+                        }
+                    }
                 }
             }
 
             Spacer(modifier = Modifier.height(16.dp))
 
             PrimaryButton(
-                text = if (isExpense) "Guardar despesa" else "Guardar rendimento",
+                text = when {
+                    isEditing -> "Guardar alterações"
+                    isExpense -> "Guardar despesa"
+                    else -> "Guardar rendimento"
+                },
                 onClick = {
                     vm.save(
                         name = description,
                         amountStr = amount,
                         isExpense = isExpense,
-                        category = categories[selectedCategory].label,
+                        category = if (isExpense) categories[selectedCategory].label else "Rendimento",
                         isRecurring = isRecurring,
+                        recurringFrequency = recurringFrequency,
                         endDate = recurEndDate,
                         description = description,
                         date = System.currentTimeMillis(),

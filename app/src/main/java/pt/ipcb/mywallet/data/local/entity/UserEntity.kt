@@ -10,6 +10,6 @@ data class UserEntity(
     val lastName: String,
     val email: String,
     val password: String,
-    val mode: String = "individual",
     val currency: String = "EUR",
+    val profilePhotoPath: String? = null,
 )

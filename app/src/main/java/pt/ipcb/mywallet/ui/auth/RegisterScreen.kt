@@ -1,7 +1,12 @@
 package pt.ipcb.mywallet.ui.auth
 
 import android.app.Activity
+import android.graphics.BitmapFactory
+import android.net.Uri
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -25,8 +30,6 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AddAPhoto
 import androidx.compose.material.icons.filled.Check
-import androidx.compose.material.icons.filled.FamilyRestroom
-import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -37,11 +40,16 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
@@ -92,11 +100,28 @@ fun RegisterScreen(
         }
     }
 
+    val context = LocalContext.current
+    var profilePhotoUri by remember { mutableStateOf<Uri?>(null) }
+    var profilePhotoBitmap by remember { mutableStateOf<ImageBitmap?>(null) }
+    val photoLauncher = rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri ->
+        profilePhotoUri = uri
+    }
+    LaunchedEffect(profilePhotoUri) {
+        profilePhotoBitmap = profilePhotoUri?.let { uri ->
+            withContext(Dispatchers.IO) {
+                runCatching {
+                    context.contentResolver.openInputStream(uri)?.use { stream ->
+                        BitmapFactory.decodeStream(stream)?.asImageBitmap()
+                    }
+                }.getOrNull()
+            }
+        }
+    }
+
     var firstName by remember { mutableStateOf("") }
     var lastName by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
-    var selectedMode by remember { mutableStateOf("individual") }
     var selectedCurrency by remember { mutableStateOf("EUR") }
     var termsAccepted by remember { mutableStateOf(false) }
 
@@ -119,10 +144,19 @@ fun RegisterScreen(
                     .background(TealLight)
                     .border(BorderStroke(1.5.dp, Color(0xFF5DCAA5)), CircleShape)
                     .align(Alignment.CenterHorizontally)
-                    .clickable { },
+                    .clickable { photoLauncher.launch("image/*") },
                 contentAlignment = Alignment.Center,
             ) {
-                Icon(imageVector = Icons.Default.AddAPhoto, contentDescription = null, tint = TealText, modifier = Modifier.size(22.dp))
+                if (profilePhotoBitmap != null) {
+                    Image(
+                        bitmap = profilePhotoBitmap!!,
+                        contentDescription = null,
+                        contentScale = ContentScale.Crop,
+                        modifier = Modifier.fillMaxSize(),
+                    )
+                } else {
+                    Icon(imageVector = Icons.Default.AddAPhoto, contentDescription = null, tint = TealText, modifier = Modifier.size(22.dp))
+                }
             }
 
             Spacer(modifier = Modifier.height(20.dp))
@@ -149,14 +183,6 @@ fun RegisterScreen(
             FieldLabel(text = "Palavra-passe")
             Spacer(modifier = Modifier.height(6.dp))
             AppTextField(value = password, onValueChange = { password = it }, placeholder = "••••••••", isPassword = true)
-
-            Spacer(modifier = Modifier.height(12.dp))
-            FieldLabel(text = "Modo de utilização")
-            Spacer(modifier = Modifier.height(6.dp))
-            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                ModeButton(icon = Icons.Default.Person, label = "Individual", selected = selectedMode == "individual", onClick = { selectedMode = "individual" }, modifier = Modifier.weight(1f))
-                ModeButton(icon = Icons.Default.FamilyRestroom, label = "Familiar", selected = selectedMode == "familiar", onClick = { selectedMode = "familiar" }, modifier = Modifier.weight(1f))
-            }
 
             Spacer(modifier = Modifier.height(12.dp))
             FieldLabel(text = "Moeda")
@@ -211,36 +237,13 @@ fun RegisterScreen(
                         lastName = lastName,
                         email = email,
                         password = password,
-                        mode = selectedMode,
                         currency = selectedCurrency,
+                        profilePhotoUri = profilePhotoUri,
                     )
                 },
                 enabled = termsAccepted && state !is AuthState.Loading,
             )
         }
-    }
-}
-
-@Composable
-private fun ModeButton(
-    icon: ImageVector,
-    label: String,
-    selected: Boolean,
-    onClick: () -> Unit,
-    modifier: Modifier = Modifier,
-) {
-    Column(
-        modifier = modifier
-            .clip(RoundedCornerShape(10.dp))
-            .background(if (selected) TealLight else Color.White)
-            .border(0.5.dp, if (selected) Color(0xFF5DCAA5) else NeutralMid, RoundedCornerShape(10.dp))
-            .clickable { onClick() }
-            .padding(vertical = 10.dp, horizontal = 8.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
-    ) {
-        Icon(imageVector = icon, contentDescription = label, tint = if (selected) TealText else TealDark, modifier = Modifier.size(22.dp))
-        Spacer(modifier = Modifier.height(3.dp))
-        Text(text = label, fontSize = 11.sp, fontWeight = FontWeight.Medium, color = if (selected) TealText else TextSecondary)
     }
 }
 

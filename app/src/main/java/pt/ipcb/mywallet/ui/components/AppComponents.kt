@@ -17,7 +17,6 @@ import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -27,6 +26,8 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -71,30 +72,30 @@ fun AppTextField(
     isPassword: Boolean = false,
     keyboardType: KeyboardType = KeyboardType.Text,
 ) {
-    BasicTextField(
+    TextField(
         value = value,
         onValueChange = onValueChange,
-        modifier = modifier.fillMaxWidth(),
+        modifier = modifier
+            .fillMaxWidth()
+            .border(0.5.dp, NeutralMid, RoundedCornerShape(10.dp)),
         singleLine = true,
         textStyle = TextStyle(fontSize = 13.sp, color = TextPrimary),
+        placeholder = { Text(text = placeholder, fontSize = 13.sp, color = TextHint) },
         visualTransformation = if (isPassword) PasswordVisualTransformation() else VisualTransformation.None,
         keyboardOptions = KeyboardOptions(keyboardType = keyboardType),
-        decorationBox = { innerTextField ->
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clip(RoundedCornerShape(10.dp))
-                    .background(Neutral)
-                    .border(0.5.dp, NeutralMid, RoundedCornerShape(10.dp))
-                    .padding(horizontal = 14.dp, vertical = 11.dp),
-                contentAlignment = Alignment.CenterStart,
-            ) {
-                if (value.isEmpty()) {
-                    Text(text = placeholder, fontSize = 13.sp, color = TextHint)
-                }
-                innerTextField()
-            }
-        },
+        shape = RoundedCornerShape(10.dp),
+        colors = TextFieldDefaults.colors(
+            focusedContainerColor = Neutral,
+            unfocusedContainerColor = Neutral,
+            focusedIndicatorColor = Color.Transparent,
+            unfocusedIndicatorColor = Color.Transparent,
+            disabledIndicatorColor = Color.Transparent,
+            cursorColor = TealDark,
+            focusedTextColor = TextPrimary,
+            unfocusedTextColor = TextPrimary,
+            focusedPlaceholderColor = TextHint,
+            unfocusedPlaceholderColor = TextHint,
+        ),
     )
 }
 

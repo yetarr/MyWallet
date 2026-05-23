@@ -12,6 +12,7 @@ data class TransactionEntity(
     val isExpense: Boolean,
     val category: String,
     val isRecurring: Boolean = false,
+    val recurringFrequency: String? = null,
     val description: String = "",
     val date: Long = System.currentTimeMillis(),
     val locationName: String? = null,

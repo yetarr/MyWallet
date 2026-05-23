@@ -18,12 +18,25 @@ class AddExpenseViewModel(app: Application) : AndroidViewModel(app) {
     private val _saved = MutableStateFlow(false)
     val saved: StateFlow<Boolean> = _saved
 
+    private val _existingTransaction = MutableStateFlow<TransactionEntity?>(null)
+    val existingTransaction: StateFlow<TransactionEntity?> = _existingTransaction
+
+    private var editId: Int? = null
+
+    fun loadTransaction(id: Int) {
+        editId = id
+        viewModelScope.launch {
+            _existingTransaction.value = repo.getById(id)
+        }
+    }
+
     fun save(
         name: String,
         amountStr: String,
         isExpense: Boolean,
         category: String,
         isRecurring: Boolean,
+        recurringFrequency: String?,
         endDate: Long?,
         description: String,
         date: Long,
@@ -31,20 +44,21 @@ class AddExpenseViewModel(app: Application) : AndroidViewModel(app) {
     ) {
         val amount = amountStr.replace(",", ".").toDoubleOrNull() ?: return
         viewModelScope.launch {
-            repo.insert(
-                TransactionEntity(
-                    userId = session.userId,
-                    name = name.ifBlank { category },
-                    amount = amount,
-                    isExpense = isExpense,
-                    category = category,
-                    isRecurring = isRecurring,
-                    endDate = endDate,
-                    description = description,
-                    date = date,
-                    locationName = locationName,
-                )
+            val entity = TransactionEntity(
+                id = editId ?: 0,
+                userId = session.userId,
+                name = name.ifBlank { category },
+                amount = amount,
+                isExpense = isExpense,
+                category = category,
+                isRecurring = isRecurring,
+                recurringFrequency = if (isRecurring) recurringFrequency else null,
+                endDate = endDate,
+                description = description,
+                date = date,
+                locationName = locationName,
             )
+            if (editId != null) repo.update(entity) else repo.insert(entity)
             _saved.value = true
         }
     }

@@ -42,6 +42,12 @@ class DashboardViewModel(app: Application) : AndroidViewModel(app) {
             list.filter { it.date in start..<end }.take(5)
         }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), emptyList())
 
+    val allTransactionsForMonth: StateFlow<List<TransactionEntity>> =
+        combine(allTransactions, monthOffset) { list, offset ->
+            val (start, end) = monthRange(offset)
+            list.filter { it.date in start..<end }
+        }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), emptyList())
+
     val currentMonthIncome: StateFlow<Double> =
         combine(allTransactions, monthOffset) { list, offset ->
             val (start, end) = monthRange(offset)

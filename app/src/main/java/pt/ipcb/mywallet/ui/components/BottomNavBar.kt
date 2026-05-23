@@ -17,7 +17,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.BarChart
 import androidx.compose.material.icons.filled.Flag
-import androidx.compose.material.icons.filled.Group
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -52,7 +51,6 @@ private val tabs = listOf(
     NavTab(null, Icons.Default.Add, "Adicionar", isAction = true),
     NavTab(Screen.Stats.route, Icons.Default.BarChart, "Stats"),
     NavTab(Screen.Goals.route, Icons.Default.Flag, "Objetivos"),
-    NavTab(Screen.Family.route, Icons.Default.Group, "Família"),
 )
 
 @Composable

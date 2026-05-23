@@ -308,17 +308,25 @@ fun DashboardScreen(
 
     // ── Transaction detail dialog ──────────────────────────────────────────────
     selectedTxn?.let { txn ->
-        TransactionDetailDialog(txn = txn, currency = currency, onDismiss = { selectedTxn = null })
+        TransactionDetailDialog(
+            txn = txn,
+            currency = currency,
+            onDismiss = { selectedTxn = null },
+            onEditClick = {
+                navController.navigate(Screen.AddExpense.editRoute(txn.id))
+            },
+        )
     }
 }
 
 // ── Transaction detail dialog ─────────────────────────────────────────────────
 
 @Composable
-private fun TransactionDetailDialog(
+fun TransactionDetailDialog(
     txn: TransactionEntity,
     currency: String,
     onDismiss: () -> Unit,
+    onEditClick: (() -> Unit)? = null,
 ) {
     val (icon, bg) = categoryIconAndColor(txn.category)
     val iconTint = when (bg) { TealLight -> TealDark; AmberLight -> Amber; else -> CoralMid }
@@ -359,7 +367,12 @@ private fun TransactionDetailDialog(
                 )
             }
         },
-        confirmButton = { TextButton(onClick = onDismiss) { Text("Fechar", color = TealDark) } },
+        confirmButton = {
+            if (onEditClick != null) {
+                TextButton(onClick = { onDismiss(); onEditClick() }) { Text("Editar", color = TealDark) }
+            }
+        },
+        dismissButton = { TextButton(onClick = onDismiss) { Text("Fechar") } },
         containerColor = Color.White,
     )
 }
