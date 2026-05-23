@@ -55,7 +55,9 @@ dependencies {
     implementation(libs.androidx.navigation.compose)
     implementation(libs.androidx.room.runtime)
     implementation(libs.androidx.room.ktx)
+    implementation(libs.play.services.location)
     ksp(libs.androidx.room.compiler)
+
     // Firebase — uncomment together with the google-services plugin above
     // implementation(platform(libs.firebase.bom))
     // implementation(libs.firebase.auth)
