@@ -379,7 +379,7 @@ fun AddExpenseScreen(
                         endDate = recurEndDate,
                         description = description,
                         date = System.currentTimeMillis(),
-                        locationName = location?.toAddressName(context),
+                        locationName = if (useLocation) location?.toAddressName(context) else null,
                     )
                 },
                 enabled = amount.isNotBlank(),
