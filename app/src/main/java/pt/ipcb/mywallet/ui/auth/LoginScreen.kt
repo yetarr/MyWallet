@@ -1,6 +1,7 @@
 package pt.ipcb.mywallet.ui.auth
 
 import android.app.Activity
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -32,7 +33,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalView
+import androidx.compose.ui.res.imageResource
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
@@ -41,6 +45,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.view.WindowCompat
 import androidx.lifecycle.viewmodel.compose.viewModel
+import pt.ipcb.mywallet.R
 import pt.ipcb.mywallet.ui.components.AppTextField
 import pt.ipcb.mywallet.ui.components.FieldLabel
 import pt.ipcb.mywallet.ui.components.PrimaryButton
@@ -103,10 +108,16 @@ fun LoginScreen(
             ) {
                 Box(
                     modifier = Modifier
-                        .size(28.dp)
-                        .clip(RoundedCornerShape(8.dp))
-                        .background(Color.White),
-                )
+                        .size(42.dp)
+                        .clip(RoundedCornerShape(12.dp)),
+                ){
+                    Image(
+                        painter = painterResource(id = R.drawable.logo),
+                        contentDescription = "MyWallet Logo",
+                        modifier = Modifier.fillMaxSize(),
+                        contentScale = ContentScale.Crop
+                    )
+                }
             }
 
             Spacer(modifier = Modifier.height(16.dp))
