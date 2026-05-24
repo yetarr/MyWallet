@@ -104,6 +104,7 @@ fun DashboardScreen(
     val user by vm.user.collectAsState()
     val income by vm.currentMonthIncome.collectAsState()
     val expenses by vm.currentMonthExpenses.collectAsState()
+    val totalBalance by vm.totalBalance.collectAsState()
     val transactions by vm.recentTransactions.collectAsState()
     val monthOffset by vm.monthOffset.collectAsState()
     val monthLabel by vm.selectedMonthLabel.collectAsState()
@@ -206,7 +207,7 @@ fun DashboardScreen(
 
                     Spacer(modifier = Modifier.height(4.dp))
                     Text(
-                        text = Formatters.formatCurrency(monthlyNet, currency),
+                        text = Formatters.formatCurrency(totalBalance, currency),
                         fontSize = 28.sp, fontWeight = FontWeight.Bold, color = Color.White,
                         letterSpacing = (-0.5).sp,
                     )
