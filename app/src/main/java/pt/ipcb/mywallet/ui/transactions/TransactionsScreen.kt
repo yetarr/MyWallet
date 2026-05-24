@@ -102,6 +102,7 @@ fun TransactionsScreen(
             currency = currency,
             onDismiss = { selectedTxn = null },
             onEditClick = { onEditClick(txn.id) },
+            onDeleteClick = { vm.deleteTransaction(txn); selectedTxn = null },
         )
     }
 }

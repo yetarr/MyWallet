@@ -9,6 +9,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.launch
 import pt.ipcb.mywallet.data.SessionManager
 import pt.ipcb.mywallet.data.local.AppDatabase
 import pt.ipcb.mywallet.data.local.entity.TransactionEntity
@@ -96,6 +97,10 @@ class DashboardViewModel(app: Application) : AndroidViewModel(app) {
     fun nextMonth() { if (monthOffset.value < 0) monthOffset.value++ }
     fun goToMonthIndex(idx: Int) { monthOffset.value = idx - currentMonthIndex }
     fun logout() = session.logout()
+
+    fun deleteTransaction(txn: TransactionEntity) {
+        viewModelScope.launch { transactionRepo.delete(txn) }
+    }
 
     // Single-calendar implementation — avoids end-of-month edge cases
     private fun monthRange(offset: Int): Pair<Long, Long> {

@@ -313,9 +313,8 @@ fun DashboardScreen(
             txn = txn,
             currency = currency,
             onDismiss = { selectedTxn = null },
-            onEditClick = {
-                navController.navigate(Screen.AddExpense.editRoute(txn.id))
-            },
+            onEditClick = { navController.navigate(Screen.AddExpense.editRoute(txn.id)) },
+            onDeleteClick = { vm.deleteTransaction(txn); selectedTxn = null },
         )
     }
 }
@@ -328,7 +327,10 @@ fun TransactionDetailDialog(
     currency: String,
     onDismiss: () -> Unit,
     onEditClick: (() -> Unit)? = null,
+    onDeleteClick: (() -> Unit)? = null,
 ) {
+    var showDeleteConfirm by remember { mutableStateOf(false) }
+
     val (icon, bg) = categoryIconAndColor(txn.category)
     val iconTint = when (bg) { TealLight -> TealDark; AmberLight -> Amber; else -> CoralMid }
 
@@ -362,20 +364,41 @@ fun TransactionDetailDialog(
                     else -> "Única vez"
                 }
                 DetailRow(label = "Tipo", value = typeLabel)
-                if (txn.locationName != null) DetailRow(
-                    label = "Localização",
-                    value = txn.locationName,
-                )
+                if (txn.locationName != null) DetailRow(label = "Localização", value = txn.locationName)
             }
         },
         confirmButton = {
-            if (onEditClick != null) {
-                TextButton(onClick = { onDismiss(); onEditClick() }) { Text("Editar", color = TealDark) }
+            Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                TextButton(onClick = onDismiss) { Text("Fechar") }
+                if (onEditClick != null) {
+                    TextButton(onClick = { onDismiss(); onEditClick() }) { Text("Editar", color = TealDark) }
+                }
             }
         },
-        dismissButton = { TextButton(onClick = onDismiss) { Text("Fechar") } },
+        dismissButton = {
+            if (onDeleteClick != null) {
+                TextButton(onClick = { showDeleteConfirm = true }) { Text("Apagar", color = CoralMid) }
+            }
+        },
         containerColor = Color.White,
     )
+
+    if (showDeleteConfirm) {
+        AlertDialog(
+            onDismissRequest = { showDeleteConfirm = false },
+            title = { Text("Apagar transação?", fontWeight = FontWeight.SemiBold, fontSize = 15.sp) },
+            text = { Text("Esta ação não pode ser revertida.", fontSize = 13.sp, color = TextSecondary) },
+            confirmButton = {
+                TextButton(onClick = { onDeleteClick?.invoke(); onDismiss() }) {
+                    Text("Apagar", color = CoralMid)
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showDeleteConfirm = false }) { Text("Cancelar") }
+            },
+            containerColor = Color.White,
+        )
+    }
 }
 
 @Composable
