@@ -82,7 +82,7 @@ fun AppTextField(
         textStyle = TextStyle(fontSize = 13.sp, color = TextPrimary),
         placeholder = { Text(text = placeholder, fontSize = 13.sp, color = TextHint) },
         visualTransformation = if (isPassword) PasswordVisualTransformation() else VisualTransformation.None,
-        keyboardOptions = KeyboardOptions(keyboardType = keyboardType),
+        keyboardOptions = KeyboardOptions(keyboardType = if (isPassword) KeyboardType.Password else keyboardType),
         shape = RoundedCornerShape(10.dp),
         colors = TextFieldDefaults.colors(
             focusedContainerColor = Neutral,

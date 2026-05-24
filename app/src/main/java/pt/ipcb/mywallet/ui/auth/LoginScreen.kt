@@ -110,7 +110,7 @@ fun LoginScreen(
             }
 
             Spacer(modifier = Modifier.height(16.dp))
-            Text("FinanceApp", fontSize = 22.sp, fontWeight = FontWeight.Bold, color = Color.White, textAlign = TextAlign.Center)
+            Text("MyWallet", fontSize = 22.sp, fontWeight = FontWeight.Bold, color = Color.White, textAlign = TextAlign.Center)
             Spacer(modifier = Modifier.height(6.dp))
             Text("O teu gestor financeiro pessoal", fontSize = 13.sp, color = Color.White.copy(alpha = 0.6f), textAlign = TextAlign.Center)
             Spacer(modifier = Modifier.height(32.dp))
