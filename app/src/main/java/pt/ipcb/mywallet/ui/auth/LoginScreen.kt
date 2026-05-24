@@ -164,14 +164,6 @@ fun LoginScreen(
                     }
 
                     SecondaryButton(text = "Criar conta", onClick = onRegisterClick)
-                    Spacer(modifier = Modifier.height(14.dp))
-                    Text(
-                        text = "Esqueci a palavra-passe",
-                        modifier = Modifier.fillMaxWidth().clickable { onForgotPasswordClick() },
-                        textAlign = TextAlign.Center,
-                        fontSize = 12.sp,
-                        color = TealDark,
-                    )
                 }
             }
         }
