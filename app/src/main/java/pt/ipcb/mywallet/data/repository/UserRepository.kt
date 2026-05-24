@@ -6,6 +6,7 @@ import pt.ipcb.mywallet.data.local.entity.UserEntity
 
 class UserRepository(private val dao: UserDao) {
     suspend fun insert(user: UserEntity): Long = dao.insert(user)
+    suspend fun update(user: UserEntity) = dao.update(user)
     suspend fun findByEmailAndPassword(email: String, password: String): UserEntity? =
         dao.findByEmailAndPassword(email, password)
     suspend fun findByEmail(email: String): UserEntity? = dao.findByEmail(email)

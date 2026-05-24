@@ -307,20 +307,36 @@ fun DashboardScreen(
         BottomNavBar(navController = navController, onAddClick = onAddClick)
     }
 
-    // ── Logout dialog ──────────────────────────────────────────────────────────
+    // ── Avatar dialog ──────────────────────────────────────────────────────────
     if (showLogoutDialog) {
         AlertDialog(
             onDismissRequest = { showLogoutDialog = false },
-            title = { Text(text = displayName, fontWeight = FontWeight.SemiBold) },
-            text = { Text("Terminar sessão e voltar ao ecrã de login?", fontSize = 13.sp) },
-            confirmButton = {
-                TextButton(onClick = {
-                    vm.logout()
-                    navController.navigate(Screen.Login.route) {
-                        popUpTo(Screen.Dashboard.route) { inclusive = true }
+            title = { Text(text = displayName, fontWeight = FontWeight.SemiBold, fontSize = 15.sp) },
+            text = {
+                androidx.compose.foundation.layout.Column {
+                    TextButton(
+                        onClick = { showLogoutDialog = false; navController.navigate(Screen.EditProfile.route) },
+                        modifier = Modifier.fillMaxWidth(),
+                    ) {
+                        Text("Editar conta", color = TealDark, fontSize = 13.sp, modifier = Modifier.fillMaxWidth())
                     }
-                }) { Text("Sair", color = CoralMid) }
+                    androidx.compose.foundation.layout.Box(
+                        modifier = Modifier.fillMaxWidth().height(0.5.dp).background(NeutralMid)
+                    )
+                    TextButton(
+                        onClick = {
+                            vm.logout()
+                            navController.navigate(Screen.Login.route) {
+                                popUpTo(Screen.Dashboard.route) { inclusive = true }
+                            }
+                        },
+                        modifier = Modifier.fillMaxWidth(),
+                    ) {
+                        Text("Terminar sessão", color = CoralMid, fontSize = 13.sp, modifier = Modifier.fillMaxWidth())
+                    }
+                }
             },
+            confirmButton = {},
             dismissButton = { TextButton(onClick = { showLogoutDialog = false }) { Text("Cancelar") } },
             containerColor = Color.White,
         )

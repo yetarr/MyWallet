@@ -27,6 +27,7 @@ import pt.ipcb.mywallet.ui.expense.AddExpenseScreen
 import pt.ipcb.mywallet.ui.goals.GoalsScreen
 import pt.ipcb.mywallet.ui.stats.StatsScreen
 import pt.ipcb.mywallet.ui.theme.MyWalletTheme
+import pt.ipcb.mywallet.ui.profile.EditProfileScreen
 import pt.ipcb.mywallet.ui.transactions.TransactionsScreen
 import pt.ipcb.mywallet.viewmodel.DashboardViewModel
 
@@ -141,6 +142,13 @@ private fun AppNavHost(startDestination: String, location: Location?) {
             GoalsScreen(
                 navController = navController,
                 onAddClick = { navController.navigate(Screen.AddExpense.route) },
+            )
+        }
+
+        composable(Screen.EditProfile.route) {
+            EditProfileScreen(
+                onBackClick = { navController.popBackStack() },
+                onSaveClick = { navController.popBackStack() },
             )
         }
 
