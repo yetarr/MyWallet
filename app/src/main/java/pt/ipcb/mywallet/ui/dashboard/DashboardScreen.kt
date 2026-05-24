@@ -133,173 +133,180 @@ fun DashboardScreen(
 
     Column(modifier = Modifier.fillMaxSize()) {
 
-        // ── Teal header ────────────────────────────────────────────────────────
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .background(TealDark)
-                .statusBarsPadding()
-                .padding(horizontal = 16.dp)
-                .padding(top = 20.dp, bottom = 24.dp),
-        ) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.Top,
-            ) {
-                Column {
-                    Text(text = greeting, fontSize = 11.sp, color = Color.White.copy(alpha = 0.6f))
-                    Text(text = displayName, fontSize = 17.sp, fontWeight = FontWeight.SemiBold, color = Color.White)
-                }
-                // Tap avatar → logout dialog
-                Box(
-                    modifier = Modifier
-                        .size(36.dp)
-                        .clip(CircleShape)
-                        .background(TealMid)
-                        .clickable { showLogoutDialog = true },
-                    contentAlignment = Alignment.Center,
-                ) {
-                    val bmp = profileBitmap
-                    if (bmp != null) {
-                        Image(
-                            bitmap = bmp,
-                            contentDescription = null,
-                            contentScale = ContentScale.Crop,
-                            modifier = Modifier.fillMaxSize(),
-                        )
-                    } else {
-                        Text(text = initials, fontSize = 13.sp, fontWeight = FontWeight.SemiBold, color = Color.White)
-                    }
-                }
-            }
-
-            Spacer(modifier = Modifier.height(18.dp))
-
-            // ── Swipeable balance card ─────────────────────────────────────────
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clip(RoundedCornerShape(14.dp))
-                    .background(Color.White.copy(alpha = 0.12f))
-                    .pointerInput(Unit) {
-                        detectHorizontalDragGestures(
-                            onDragEnd = {
-                                when {
-                                    swipeAccum < -80f -> vm.nextMonth()
-                                    swipeAccum > 80f -> vm.prevMonth()
-                                }
-                                swipeAccum = 0f
-                            },
-                            onDragCancel = { swipeAccum = 0f },
-                            onHorizontalDrag = { _, delta -> swipeAccum += delta },
-                        )
-                    }
-                    .padding(14.dp),
-            ) {
-                Column {
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically,
-                    ) {
-                        val canGoPrev = monthOffset > -(availableMonthCount - 1)
-                        val canGoNext = monthOffset < 0
-                        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(2.dp)) {
-                            Icon(
-                                imageVector = Icons.Default.ChevronLeft,
-                                contentDescription = "Mês anterior",
-                                tint = if (canGoPrev) Color.White.copy(alpha = 0.7f) else Color.White.copy(alpha = 0.2f),
-                                modifier = Modifier.size(18.dp).clickable(enabled = canGoPrev) { vm.prevMonth() },
-                            )
-                            Text(text = "Saldo · $monthLabel", fontSize = 11.sp, color = Color.White.copy(alpha = 0.6f))
-                        }
-                        Icon(
-                            imageVector = Icons.Default.ChevronRight,
-                            contentDescription = "Mês seguinte",
-                            tint = if (canGoNext) Color.White.copy(alpha = 0.7f) else Color.White.copy(alpha = 0.2f),
-                            modifier = Modifier
-                                .size(18.dp)
-                                .clickable(enabled = canGoNext) { vm.nextMonth() },
-                        )
-                    }
-
-                    Spacer(modifier = Modifier.height(4.dp))
-                    Text(
-                        text = Formatters.formatCurrency(totalBalance, currency),
-                        fontSize = 28.sp, fontWeight = FontWeight.Bold, color = Color.White,
-                        letterSpacing = (-0.5).sp,
-                    )
-                    Spacer(modifier = Modifier.height(8.dp))
-                    Row(horizontalArrangement = Arrangement.spacedBy(7.dp)) {
-                        val surplusText = if (monthlyNet >= 0)
-                            "▲ +${Formatters.formatCurrency(monthlyNet, currency)} superávit"
-                        else
-                            "▼ ${Formatters.formatCurrency(-monthlyNet, currency)} défice"
-                        Badge(text = surplusText, containerColor = TealMid, contentColor = Color.White)
-                        Badge(text = monthLabel, containerColor = Color.White.copy(alpha = 0.15f), contentColor = Color.White.copy(alpha = 0.8f))
-                    }
-                }
-            }
-            Spacer(modifier = Modifier.height(12.dp))
-
-            // ── Month dot indicators ───────────────────────────────────────────
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.Center,
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                repeat(availableMonthCount) { i ->
-                    val isSelected = i == selectedMonthInYear
-                    Box(
-                        modifier = Modifier
-                            .padding(horizontal = 3.dp)
-                            .size(if (isSelected) 8.dp else 6.dp)
-                            .clip(CircleShape)
-                            .background(
-                                if (isSelected) Color.White else Color.White.copy(alpha = 0.35f)
-                            )
-                            .clickable { vm.goToMonthIndex(i) },
-                    )
-                }
-            }
-        }
-
-        // ── Scrollable body ────────────────────────────────────────────────────
+        // ── Scrollable area (header + body) ────────────────────────────────────
         Column(
             modifier = Modifier
                 .fillMaxWidth()
                 .weight(1f)
-                .background(Neutral)
-                .verticalScroll(rememberScrollState())
-                .padding(14.dp)
-                .navigationBarsPadding(),
+                .verticalScroll(rememberScrollState()),
         ) {
-            InsightBanner(income = income, expenses = expenses, currency = currency)
-            Spacer(modifier = Modifier.height(12.dp))
 
-            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                StatCard(label = "Rendimentos", value = Formatters.formatCurrency(income, currency), isPositive = true, modifier = Modifier.weight(1f))
-                StatCard(label = "Despesas", value = Formatters.formatCurrency(expenses, currency), isPositive = false, modifier = Modifier.weight(1f))
+            // ── Teal header ────────────────────────────────────────────────────
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(TealDark)
+                    .statusBarsPadding()
+                    .padding(horizontal = 16.dp)
+                    .padding(top = 20.dp, bottom = 24.dp),
+            ) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.Top,
+                ) {
+                    Column {
+                        Text(text = greeting, fontSize = 11.sp, color = Color.White.copy(alpha = 0.6f))
+                        Text(text = displayName, fontSize = 17.sp, fontWeight = FontWeight.SemiBold, color = Color.White)
+                    }
+                    // Tap avatar → logout dialog
+                    Box(
+                        modifier = Modifier
+                            .size(36.dp)
+                            .clip(CircleShape)
+                            .background(TealMid)
+                            .clickable { showLogoutDialog = true },
+                        contentAlignment = Alignment.Center,
+                    ) {
+                        val bmp = profileBitmap
+                        if (bmp != null) {
+                            Image(
+                                bitmap = bmp,
+                                contentDescription = null,
+                                contentScale = ContentScale.Crop,
+                                modifier = Modifier.fillMaxSize(),
+                            )
+                        } else {
+                            Text(text = initials, fontSize = 13.sp, fontWeight = FontWeight.SemiBold, color = Color.White)
+                        }
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(18.dp))
+
+                // ── Swipeable balance card ─────────────────────────────────────
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clip(RoundedCornerShape(14.dp))
+                        .background(Color.White.copy(alpha = 0.12f))
+                        .pointerInput(Unit) {
+                            detectHorizontalDragGestures(
+                                onDragEnd = {
+                                    when {
+                                        swipeAccum < -80f -> vm.nextMonth()
+                                        swipeAccum > 80f -> vm.prevMonth()
+                                    }
+                                    swipeAccum = 0f
+                                },
+                                onDragCancel = { swipeAccum = 0f },
+                                onHorizontalDrag = { _, delta -> swipeAccum += delta },
+                            )
+                        }
+                        .padding(14.dp),
+                ) {
+                    Column {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically,
+                        ) {
+                            val canGoPrev = monthOffset > -(availableMonthCount - 1)
+                            val canGoNext = monthOffset < 0
+                            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(2.dp)) {
+                                Icon(
+                                    imageVector = Icons.Default.ChevronLeft,
+                                    contentDescription = "Mês anterior",
+                                    tint = if (canGoPrev) Color.White.copy(alpha = 0.7f) else Color.White.copy(alpha = 0.2f),
+                                    modifier = Modifier.size(18.dp).clickable(enabled = canGoPrev) { vm.prevMonth() },
+                                )
+                                Text(text = "Saldo · $monthLabel", fontSize = 11.sp, color = Color.White.copy(alpha = 0.6f))
+                            }
+                            Icon(
+                                imageVector = Icons.Default.ChevronRight,
+                                contentDescription = "Mês seguinte",
+                                tint = if (canGoNext) Color.White.copy(alpha = 0.7f) else Color.White.copy(alpha = 0.2f),
+                                modifier = Modifier
+                                    .size(18.dp)
+                                    .clickable(enabled = canGoNext) { vm.nextMonth() },
+                            )
+                        }
+
+                        Spacer(modifier = Modifier.height(4.dp))
+                        Text(
+                            text = Formatters.formatCurrency(totalBalance, currency),
+                            fontSize = 28.sp, fontWeight = FontWeight.Bold, color = Color.White,
+                            letterSpacing = (-0.5).sp,
+                        )
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Row(horizontalArrangement = Arrangement.spacedBy(7.dp)) {
+                            val surplusText = if (monthlyNet >= 0)
+                                "▲ +${Formatters.formatCurrency(monthlyNet, currency)} superávit"
+                            else
+                                "▼ ${Formatters.formatCurrency(-monthlyNet, currency)} défice"
+                            Badge(text = surplusText, containerColor = TealMid, contentColor = Color.White)
+                            Badge(text = monthLabel, containerColor = Color.White.copy(alpha = 0.15f), contentColor = Color.White.copy(alpha = 0.8f))
+                        }
+                    }
+                }
+                Spacer(modifier = Modifier.height(12.dp))
+
+                // ── Month dot indicators ───────────────────────────────────────
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.Center,
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    repeat(availableMonthCount) { i ->
+                        val isSelected = i == selectedMonthInYear
+                        Box(
+                            modifier = Modifier
+                                .padding(horizontal = 3.dp)
+                                .size(if (isSelected) 8.dp else 6.dp)
+                                .clip(CircleShape)
+                                .background(
+                                    if (isSelected) Color.White else Color.White.copy(alpha = 0.35f)
+                                )
+                                .clickable { vm.goToMonthIndex(i) },
+                        )
+                    }
+                }
             }
 
-            Spacer(modifier = Modifier.height(14.dp))
-            SectionHeader(title = "Transações · $monthLabel", linkText = "ver tudo", onLinkClick = onSeeAllClick)
-            Spacer(modifier = Modifier.height(8.dp))
+            // ── Body ──────────────────────────────────────────────────────────
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(Neutral)
+                    .padding(14.dp)
+                    .navigationBarsPadding(),
+            ) {
+                InsightBanner(income = income, expenses = expenses, currency = currency)
+                Spacer(modifier = Modifier.height(12.dp))
 
-            if (transactions.isEmpty()) {
-                Text(text = "Sem transações neste mês.", fontSize = 12.sp, color = TextHint, modifier = Modifier.padding(vertical = 8.dp))
-            } else {
-                transactions.forEach { txn ->
-                    val (icon, bg) = categoryIconAndColor(txn.category)
-                    TransactionItem(
-                        icon = icon, iconBgColor = bg,
-                        name = txn.name,
-                        category = "${txn.category} · ${Formatters.formatRelativeDate(txn.date)}",
-                        amount = if (txn.isExpense) "–${Formatters.formatCurrency(txn.amount, currency)}" else "+${Formatters.formatCurrency(txn.amount, currency)}",
-                        isExpense = txn.isExpense,
-                        onClick = { selectedTxn = txn },
-                    )
+                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    StatCard(label = "Rendimentos", value = Formatters.formatCurrency(income, currency), isPositive = true, modifier = Modifier.weight(1f))
+                    StatCard(label = "Despesas", value = Formatters.formatCurrency(expenses, currency), isPositive = false, modifier = Modifier.weight(1f))
+                }
+
+                Spacer(modifier = Modifier.height(14.dp))
+                SectionHeader(title = "Transações · $monthLabel", linkText = "ver tudo", onLinkClick = onSeeAllClick)
+                Spacer(modifier = Modifier.height(8.dp))
+
+                if (transactions.isEmpty()) {
+                    Text(text = "Sem transações neste mês.", fontSize = 12.sp, color = TextHint, modifier = Modifier.padding(vertical = 8.dp))
+                } else {
+                    transactions.forEach { txn ->
+                        val (icon, bg) = categoryIconAndColor(txn.category)
+                        TransactionItem(
+                            icon = icon, iconBgColor = bg,
+                            name = txn.name,
+                            category = "${txn.category} · ${Formatters.formatRelativeDate(txn.date)}",
+                            amount = if (txn.isExpense) "–${Formatters.formatCurrency(txn.amount, currency)}" else "+${Formatters.formatCurrency(txn.amount, currency)}",
+                            isExpense = txn.isExpense,
+                            onClick = { selectedTxn = txn },
+                        )
+                    }
                 }
             }
         }
