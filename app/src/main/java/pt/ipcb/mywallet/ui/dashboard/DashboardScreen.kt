@@ -186,8 +186,8 @@ fun DashboardScreen(
                         detectHorizontalDragGestures(
                             onDragEnd = {
                                 when {
-                                    swipeAccum < -80f -> vm.prevMonth()
-                                    swipeAccum > 80f -> vm.nextMonth()
+                                    swipeAccum < -80f -> vm.nextMonth()
+                                    swipeAccum > 80f -> vm.prevMonth()
                                 }
                                 swipeAccum = 0f
                             },
