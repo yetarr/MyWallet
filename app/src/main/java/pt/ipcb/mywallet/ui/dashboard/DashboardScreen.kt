@@ -21,6 +21,8 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import android.graphics.BitmapFactory
+import androidx.compose.foundation.Image
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountBalance
 import androidx.compose.material.icons.filled.Category
@@ -50,7 +52,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.text.font.FontWeight
@@ -117,6 +121,11 @@ fun DashboardScreen(
     val initials = user?.let { "${it.firstName.firstOrNull() ?: ""}${it.lastName.firstOrNull() ?: ""}" }?.uppercase() ?: ""
     val currency = user?.currency ?: "EUR"
     val monthlyNet = income - expenses
+    val profileBitmap = remember(user?.profilePhotoPath) {
+        user?.profilePhotoPath?.let { path ->
+            runCatching { BitmapFactory.decodeFile(path)?.asImageBitmap() }.getOrNull()
+        }
+    }
 
     var swipeAccum by remember { mutableFloatStateOf(0f) }
     var showLogoutDialog by remember { mutableStateOf(false) }
@@ -151,7 +160,17 @@ fun DashboardScreen(
                         .clickable { showLogoutDialog = true },
                     contentAlignment = Alignment.Center,
                 ) {
-                    Text(text = initials, fontSize = 13.sp, fontWeight = FontWeight.SemiBold, color = Color.White)
+                    val bmp = profileBitmap
+                    if (bmp != null) {
+                        Image(
+                            bitmap = bmp,
+                            contentDescription = null,
+                            contentScale = ContentScale.Crop,
+                            modifier = Modifier.fillMaxSize(),
+                        )
+                    } else {
+                        Text(text = initials, fontSize = 13.sp, fontWeight = FontWeight.SemiBold, color = Color.White)
+                    }
                 }
             }
 

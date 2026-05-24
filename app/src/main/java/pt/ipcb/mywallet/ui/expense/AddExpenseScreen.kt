@@ -133,9 +133,10 @@ fun AddExpenseScreen(
     var recurringFrequency by remember { mutableStateOf("Mensal") }
     var recurEndDate by remember { mutableStateOf<Long?>(null) }
     var showEndDatePicker by remember { mutableStateOf(false) }
+    var selectedDate by remember { mutableStateOf(System.currentTimeMillis()) }
+    var showDatePicker by remember { mutableStateOf(false) }
     var description by remember { mutableStateOf("") }
     var useLocation by remember { mutableStateOf(false) }
-    val dateStr = Formatters.formatDate(System.currentTimeMillis())
 
     val isEditing = transactionId != null
     val existingTransaction by vm.existingTransaction.collectAsState()
@@ -154,6 +155,7 @@ fun AddExpenseScreen(
                 isRecurring = txn.isRecurring
                 recurringFrequency = txn.recurringFrequency ?: "Mensal"
                 recurEndDate = txn.endDate
+                selectedDate = txn.date
                 description = txn.description
             }
         }
@@ -313,15 +315,20 @@ fun AddExpenseScreen(
 
             FieldLabel(text = "Data")
             Spacer(modifier = Modifier.height(6.dp))
-            Box(
+            Row(
                 modifier = Modifier
                     .fillMaxWidth()
                     .clip(RoundedCornerShape(10.dp))
-                    .background(Neutral)
+                    .background(Color.White)
                     .border(0.5.dp, NeutralMid, RoundedCornerShape(10.dp))
+                    .clickable { showDatePicker = true }
                     .padding(horizontal = 14.dp, vertical = 11.dp),
+                verticalAlignment = Alignment.CenterVertically,
             ) {
-                Text(text = dateStr, fontSize = 13.sp, color = TextSecondary)
+                Icon(imageVector = Icons.Default.CalendarToday, contentDescription = null, tint = TealDark, modifier = Modifier.size(14.dp))
+                Spacer(modifier = Modifier.size(8.dp))
+                Text(text = Formatters.formatDate(selectedDate), fontSize = 13.sp, color = TextSecondary, modifier = Modifier.weight(1f))
+                Text(text = "Alterar", fontSize = 11.sp, color = TealDark, fontWeight = FontWeight.Medium)
             }
 
             if (isExpense) {
@@ -378,12 +385,31 @@ fun AddExpenseScreen(
                         recurringFrequency = recurringFrequency,
                         endDate = recurEndDate,
                         description = description,
-                        date = System.currentTimeMillis(),
+                        date = selectedDate,
                         locationName = if (useLocation) location?.toAddressName(context) else null,
                     )
                 },
                 enabled = amount.isNotBlank(),
             )
+        }
+    }
+
+    // ── Transaction date picker dialog ────────────────────────────────────────
+    if (showDatePicker) {
+        val datePickerState = rememberDatePickerState(initialSelectedDateMillis = selectedDate)
+        DatePickerDialog(
+            onDismissRequest = { showDatePicker = false },
+            confirmButton = {
+                TextButton(onClick = {
+                    datePickerState.selectedDateMillis?.let { selectedDate = it }
+                    showDatePicker = false
+                }) { Text("OK", color = TealDark) }
+            },
+            dismissButton = {
+                TextButton(onClick = { showDatePicker = false }) { Text("Cancelar") }
+            },
+        ) {
+            DatePicker(state = datePickerState)
         }
     }
 

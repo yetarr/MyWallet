@@ -57,13 +57,13 @@ class DashboardViewModel(app: Application) : AndroidViewModel(app) {
     val currentMonthIncome: StateFlow<Double> =
         combine(allTransactions, monthOffset) { list, offset ->
             val (start, end) = monthRange(offset)
-            list.filter { !it.isExpense && transactionActiveInMonth(it, start, end) }.sumOf { it.amount }
+            list.filter { !it.isExpense }.sumOf { it.amount * countOccurrences(it, start, end) }
         }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), 0.0)
 
     val currentMonthExpenses: StateFlow<Double> =
         combine(allTransactions, monthOffset) { list, offset ->
             val (start, end) = monthRange(offset)
-            list.filter { it.isExpense && transactionActiveInMonth(it, start, end) }.sumOf { it.amount }
+            list.filter { it.isExpense }.sumOf { it.amount * countOccurrences(it, start, end) }
         }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), 0.0)
 
     // Cumulative balance: all income minus all expenses from the beginning up to the
@@ -73,7 +73,7 @@ class DashboardViewModel(app: Application) : AndroidViewModel(app) {
             val (_, end) = monthRange(offset)
             list.sumOf { t ->
                 val sign = if (t.isExpense) -1.0 else 1.0
-                sign * t.amount * occurrencesUpToMonthEnd(t, end)
+                sign * t.amount * countOccurrences(t, t.date, end)
             }
         }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), 0.0)
 
@@ -115,35 +115,8 @@ class DashboardViewModel(app: Application) : AndroidViewModel(app) {
         return start to cal.timeInMillis
     }
 
-    // Returns true if a transaction has an occurrence within [start, end) that has
-    // already happened (i.e. the due day has passed for the current month, or the
-    // entire month is in the past).
-    private fun transactionActiveInMonth(t: TransactionEntity, start: Long, end: Long): Boolean {
-        if (t.date >= end) return false
-        if (!t.isRecurring) return t.date >= start
-        if (t.endDate != null && t.endDate < start) return false
-
-        val origCal = Calendar.getInstance().apply { timeInMillis = t.date }
-
-        // Annual recurrences only apply in the same calendar month as the original
-        if (t.recurringFrequency == "Anual") {
-            val monthCal = Calendar.getInstance().apply { timeInMillis = start }
-            if (origCal.get(Calendar.MONTH) != monthCal.get(Calendar.MONTH)) return false
-        }
-
-        // Past month: the full month elapsed, so the recurrence happened
-        if (end <= System.currentTimeMillis()) return true
-
-        // Current month: check if the due day has arrived (start-of-day comparison)
-        val dueCal = Calendar.getInstance().apply {
-            timeInMillis = start
-            val maxDay = getActualMaximum(Calendar.DAY_OF_MONTH)
-            set(Calendar.DAY_OF_MONTH, minOf(origCal.get(Calendar.DAY_OF_MONTH), maxDay))
-            set(Calendar.HOUR_OF_DAY, 0); set(Calendar.MINUTE, 0)
-            set(Calendar.SECOND, 0); set(Calendar.MILLISECOND, 0)
-        }
-        return dueCal.timeInMillis <= System.currentTimeMillis()
-    }
+    private fun transactionActiveInMonth(t: TransactionEntity, start: Long, end: Long): Boolean =
+        countOccurrences(t, start, end) > 0
 
     // Returns the timestamp of this transaction projected onto the equivalent day
     // within monthStart's month (clamped to the last day of that month).
@@ -160,49 +133,78 @@ class DashboardViewModel(app: Application) : AndroidViewModel(app) {
         }.timeInMillis
     }
 
-    // Counts how many times a transaction has actually occurred from its creation
-    // up to endOfMonth, capped at today so future occurrences are never counted.
-    private fun occurrencesUpToMonthEnd(t: TransactionEntity, endOfMonth: Long): Int {
-        if (t.date >= endOfMonth) return 0
-        if (!t.isRecurring) return 1
+    // Normalizes a timestamp to midnight (00:00:00.000) in the local timezone.
+    private fun midnightOf(ts: Long): Long = Calendar.getInstance().apply {
+        timeInMillis = ts
+        set(Calendar.HOUR_OF_DAY, 0); set(Calendar.MINUTE, 0)
+        set(Calendar.SECOND, 0); set(Calendar.MILLISECOND, 0)
+    }.timeInMillis
 
-        val effectiveUpTo = minOf(
-            t.endDate ?: Long.MAX_VALUE,
-            endOfMonth - 1,
-            System.currentTimeMillis()
+    // Counts how many occurrences of [t] fall within [from, to), capped at end-of-today
+    // and at the transaction's own endDate so future/expired occurrences are never counted.
+    private fun countOccurrences(t: TransactionEntity, from: Long, to: Long): Int {
+        val tMidnight = midnightOf(t.date)
+        // Exclusive upper bound: earliest of (to, tomorrow's midnight, day-after-endDate)
+        val endCap = minOf(
+            to,
+            midnightOf(System.currentTimeMillis()) + 86_400_000L,
+            t.endDate?.let { midnightOf(it) + 86_400_000L } ?: Long.MAX_VALUE
         )
-        if (effectiveUpTo < t.date) return 0
+        // Inclusive lower bound: latest of (from-midnight, creation-midnight)
+        val startFrom = maxOf(midnightOf(from), tMidnight)
+        if (startFrom >= endCap) return 0
 
-        val origCal = Calendar.getInstance().apply { timeInMillis = t.date }
-        val origDay = origCal.get(Calendar.DAY_OF_MONTH)
+        if (!t.isRecurring) return if (tMidnight >= midnightOf(from) && tMidnight < to) 1 else 0
+
+        val origDay = Calendar.getInstance().apply { timeInMillis = t.date }.get(Calendar.DAY_OF_MONTH)
         var count = 0
 
-        if (t.recurringFrequency == "Anual") {
-            val cur = Calendar.getInstance().apply {
-                timeInMillis = t.date
-                set(Calendar.HOUR_OF_DAY, 0); set(Calendar.MINUTE, 0)
-                set(Calendar.SECOND, 0); set(Calendar.MILLISECOND, 0)
+        when (t.recurringFrequency) {
+            "Diário" -> {
+                // Every calendar day from startFrom up to (but not including) endCap
+                val cur = Calendar.getInstance().apply { timeInMillis = startFrom }
+                while (cur.timeInMillis < endCap) {
+                    count++
+                    cur.add(Calendar.DAY_OF_MONTH, 1)
+                }
             }
-            while (cur.timeInMillis <= effectiveUpTo) {
-                count++
-                cur.add(Calendar.YEAR, 1)
-                cur.set(Calendar.DAY_OF_MONTH, minOf(origDay, cur.getActualMaximum(Calendar.DAY_OF_MONTH)))
+            "Semanal" -> {
+                // First occurrence at tMidnight, then every 7 days; skip forward to startFrom
+                val cur = Calendar.getInstance().apply { timeInMillis = tMidnight }
+                while (cur.timeInMillis < startFrom) cur.add(Calendar.WEEK_OF_YEAR, 1)
+                while (cur.timeInMillis < endCap) {
+                    count++
+                    cur.add(Calendar.WEEK_OF_YEAR, 1)
+                }
             }
-        } else {
-            // Mensal, Semanal, Diário — one occurrence per month on the original day-of-month
-            val cur = Calendar.getInstance().apply {
-                timeInMillis = t.date
-                set(Calendar.DAY_OF_MONTH, 1)
-                set(Calendar.HOUR_OF_DAY, 0); set(Calendar.MINUTE, 0)
-                set(Calendar.SECOND, 0); set(Calendar.MILLISECOND, 0)
+            "Mensal" -> {
+                // One occurrence per month on origDay; iterate month by month from creation month
+                val cur = Calendar.getInstance().apply {
+                    timeInMillis = tMidnight
+                    set(Calendar.DAY_OF_MONTH, 1)
+                }
+                while (true) {
+                    cur.set(Calendar.DAY_OF_MONTH, minOf(origDay, cur.getActualMaximum(Calendar.DAY_OF_MONTH)))
+                    if (cur.timeInMillis >= endCap) break
+                    if (cur.timeInMillis >= startFrom) count++
+                    cur.set(Calendar.DAY_OF_MONTH, 1)
+                    cur.add(Calendar.MONTH, 1)
+                }
             }
-            while (true) {
-                cur.set(Calendar.DAY_OF_MONTH, minOf(origDay, cur.getActualMaximum(Calendar.DAY_OF_MONTH)))
-                if (cur.timeInMillis > effectiveUpTo) break
-                if (cur.timeInMillis >= t.date) count++
-                cur.set(Calendar.DAY_OF_MONTH, 1)
-                cur.add(Calendar.MONTH, 1)
+            "Anual" -> {
+                // One occurrence per year on the same month/day; skip forward to startFrom
+                val cur = Calendar.getInstance().apply { timeInMillis = tMidnight }
+                while (cur.timeInMillis < startFrom) {
+                    cur.add(Calendar.YEAR, 1)
+                    cur.set(Calendar.DAY_OF_MONTH, minOf(origDay, cur.getActualMaximum(Calendar.DAY_OF_MONTH)))
+                }
+                while (cur.timeInMillis < endCap) {
+                    count++
+                    cur.add(Calendar.YEAR, 1)
+                    cur.set(Calendar.DAY_OF_MONTH, minOf(origDay, cur.getActualMaximum(Calendar.DAY_OF_MONTH)))
+                }
             }
+            else -> if (tMidnight >= startFrom && tMidnight < endCap) count = 1
         }
         return count
     }
